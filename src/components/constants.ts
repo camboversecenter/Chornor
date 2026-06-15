@@ -1,5 +1,5 @@
 
-import { Category, CryptoAsset, CryptoTransaction, Transaction, Family, Lending, Saving, CommunityPost, PostType, ReactionType } from './types';
+import { Category, CryptoAsset, CryptoTransaction, Transaction, Family, Lending, Saving, CommunityPost, PostType, ReactionType } from '../types';
 
 export const INITIAL_CATEGORIES: Category[] = [
   { _id: 'cat_1', name: 'ប្រាក់ខែ (Salary)', chomnay: false, color: '#10B981', order: 1 },

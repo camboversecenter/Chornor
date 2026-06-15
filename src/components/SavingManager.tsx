@@ -88,7 +88,7 @@ const SavingManager: React.FC<SavingManagerProps> = ({ familyMembers, preferredC
           savingId: selectedSaving._id,
           amountDollar: parseFloat(depositDollar) || 0,
           amountRiel: parseFloat(depositRiel) || 0,
-          alert: parseInt(alertType),
+          alert: parseInt(alertType, 10) as 1 | 2,
           isAlerted: false,
           createdAt: new Date().toISOString()
       };

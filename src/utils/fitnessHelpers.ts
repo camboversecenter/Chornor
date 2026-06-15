@@ -155,6 +155,8 @@ export function getInitialWorkouts(): Workout[] {
 }
 
 export const DEFAULT_PROFILE: UserProfile = {
+  id: 'fitness_demo',
+  name: 'Demo Athlete',
   age: 28,
   weight: 72,
   restingHR: 64,
