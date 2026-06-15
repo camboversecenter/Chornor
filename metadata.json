@@ -1,0 +1,6 @@
+{
+  "name": "Fitness & Heart Rate Tracker",
+  "description": "A comprehensive fitness tracking dashboard with workout logging, interactive real-time heart rate simulating, and AI-powered coach insights.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
