@@ -672,7 +672,7 @@ const App: React.FC = () => {
 
                   <div className="p-4 overflow-y-auto max-h-[60vh] space-y-4">
                       {pendingRequests.map(req => {
-                          const config = requestConfigs[req._id] || {};
+                          const config = requestConfigs[req._id] || { categoryId: '', familyId: '' };
                           return (
                             <div key={req._id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                                 <div className="flex justify-between mb-2">
