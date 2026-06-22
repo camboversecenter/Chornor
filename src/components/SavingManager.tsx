@@ -32,6 +32,26 @@ const SavingManager: React.FC<SavingManagerProps> = ({ familyMembers, preferredC
     refreshList();
   }, []);
 
+  useEffect(() => {
+    const unsubscribe = storage.subscribeToDataChanges(() => {
+      setSavings(storage.getSavings());
+      setSelectedSaving(prev => {
+        if (!prev) return prev;
+        const updated = storage.getSavings().find(s => s._id === prev._id) || null;
+        if (updated) {
+          setTransactions(storage.getSavingTransactions(updated._id));
+        }
+        return updated;
+      });
+    });
+
+    return () => {
+      if (typeof unsubscribe === 'function') {
+        unsubscribe();
+      }
+    };
+  }, []);
+
   const refreshList = () => {
     setSavings(storage.getSavings());
     if (selectedSaving) {
