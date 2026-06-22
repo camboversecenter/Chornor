@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { TabView, Category, Transaction, Family, Currency, AppNotification, UserProfile, TransactionRequest } from './types';
 import * as storage from './services/storageService';
 import * as authService from './services/authService';
@@ -23,13 +23,34 @@ import CreditsModal from './components/CreditsModal';
 import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users } from 'lucide-react';
 import { CURRENCY_KHR, CURRENCY_USD } from './constants';
 
+const ROUTES: Record<TabView, string> = {
+  [TabView.DASHBOARD]: '/',
+  [TabView.TRANSACTIONS]: '/transactions',
+  [TabView.ADD]: '/transactions/new',
+  [TabView.CATEGORIES]: '/settings',
+  [TabView.LENDING]: '/lending',
+  [TabView.SAVING]: '/savings',
+  [TabView.CRYPTO]: '/crypto',
+  [TabView.COMMUNITY]: '/community',
+  [TabView.ADMIN]: '/admin',
+};
+
+const getTabFromPath = (path: string): TabView => {
+  const normalizedPath = path.replace(/\/+$/, '') || '/';
+  const route = Object.entries(ROUTES).find(([, value]) => value === normalizedPath);
+  return (route?.[0] as TabView | undefined) || TabView.DASHBOARD;
+};
+
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
+  const activeUserIdRef = useRef<string | null>(null);
+  const isInitializingUserRef = useRef(false);
+  const hasLoadedDataRef = useRef(false);
 
   // App Data State
-  const [activeTab, setActiveTab] = useState<TabView>(TabView.DASHBOARD);
+  const [activeTab, setActiveTab] = useState<TabView>(() => getTabFromPath(window.location.pathname));
   const [manageTab, setManageTab] = useState<'categories' | 'family' | 'settings'>('categories');
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -59,30 +80,82 @@ const App: React.FC = () => {
         if (user) {
             handleLogin(user);
         } else {
+            activeUserIdRef.current = null;
+            isInitializingUserRef.current = false;
+            hasLoadedDataRef.current = false;
             setCurrentUser(null);
             setIsLoading(false);
+            setIsDataLoading(false);
         }
     });
 
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    const handlePopState = () => {
+        setEditingTransaction(null);
+        setActiveTab(getTabFromPath(window.location.pathname));
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const unsubscribeData = storage.subscribeToDataChanges(loadData);
+    const unsubscribeRealtime = storage.subscribeToRealtimeUpdates();
+
+    return () => {
+        unsubscribeData();
+        unsubscribeRealtime();
+    };
+  }, [currentUser]);
+
+  const navigateTo = (tab: TabView, options: { replace?: boolean } = {}) => {
+      const path = ROUTES[tab];
+      setActiveTab(tab);
+
+      if (window.location.pathname !== path) {
+          if (options.replace) {
+              window.history.replaceState(null, '', path);
+          } else {
+              window.history.pushState(null, '', path);
+          }
+      }
+  };
+
   const handleLogin = async (user: UserProfile) => {
+      const isSameUser = activeUserIdRef.current === user.id;
+      if (isSameUser && (isInitializingUserRef.current || hasLoadedDataRef.current)) {
+          setCurrentUser(user);
+          setIsLoading(false);
+          return;
+      }
+
+      activeUserIdRef.current = user.id;
+      isInitializingUserRef.current = true;
       setCurrentUser(user);
       setIsLoading(false);
       setIsDataLoading(true);
-      
-      // Fetch Data from Firestore (or Local Storage if offline mode)
-      await storage.initializeData(user);
-      
-      // Load local state
-      loadData();
-      
-      // Run background jobs (only if not local, or maybe allow local to gen posts too?)
-      // Let's allow local AI posts for fun
-      generateAndSaveDailyPosts();
-      
-      setIsDataLoading(false);
+
+      try {
+          // Fetch Data from Firestore (or Local Storage if offline mode)
+          await storage.initializeData(user);
+          
+          // Load local state
+          loadData();
+          
+          // Run background jobs (only if not local, or maybe allow local to gen posts too?)
+          // Let's allow local AI posts for fun
+          generateAndSaveDailyPosts();
+          hasLoadedDataRef.current = true;
+      } finally {
+          isInitializingUserRef.current = false;
+          setIsDataLoading(false);
+      }
   };
 
   const loadData = () => {
@@ -100,7 +173,7 @@ const App: React.FC = () => {
     storage.saveTransaction(t);
     loadData(); // Update UI immediately
     setEditingTransaction(null); // Clear edit mode if active
-    setActiveTab(TabView.TRANSACTIONS);
+    navigateTo(TabView.TRANSACTIONS);
   };
 
   const handleDeleteTransaction = (id: string) => {
@@ -111,12 +184,12 @@ const App: React.FC = () => {
 
   const handleEditTransaction = (t: Transaction) => {
       setEditingTransaction(t);
-      setActiveTab(TabView.ADD);
+      navigateTo(TabView.ADD);
   };
 
   const handleCancelEdit = () => {
       setEditingTransaction(null);
-      setActiveTab(TabView.DASHBOARD);
+      navigateTo(TabView.DASHBOARD);
   }
 
   const handleAddCategory = (c: Category) => {
@@ -163,9 +236,9 @@ const App: React.FC = () => {
 
   const handleNotificationClick = (n: AppNotification) => {
       setShowNotifications(false);
-      if (n.type === 'LENDING') setActiveTab(TabView.LENDING);
-      if (n.type === 'SAVING') setActiveTab(TabView.SAVING);
-      if (n.type === 'TRANSACTION') setActiveTab(TabView.TRANSACTIONS);
+      if (n.type === 'LENDING') navigateTo(TabView.LENDING);
+      if (n.type === 'SAVING') navigateTo(TabView.SAVING);
+      if (n.type === 'TRANSACTION') navigateTo(TabView.TRANSACTIONS);
       if (n.type === 'EXTERNAL_REQUEST' && n.data) {
           setPendingRequests(n.data);
           initRequestConfigs(n.data);
@@ -395,7 +468,7 @@ const App: React.FC = () => {
       <button
         onClick={() => {
             setEditingTransaction(null);
-            setActiveTab(tab);
+            navigateTo(tab);
         }}
         className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left ${
             activeTab === tab 
@@ -427,15 +500,6 @@ const App: React.FC = () => {
       );
   }
 
-  if (isDataLoading) {
-      return (
-          <div className="min-h-screen bg-indigo-50 flex flex-col items-center justify-center gap-4">
-              <Loader2 className="animate-spin text-indigo-600 w-10 h-10" />
-              <p className="text-gray-600 font-medium animate-pulse">កំពុងទាញយកទិន្នន័យ (Syncing)...</p>
-          </div>
-      );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row font-sans text-gray-900">
       
@@ -455,7 +519,7 @@ const App: React.FC = () => {
               <button 
                   onClick={() => {
                     setEditingTransaction(null);
-                    setActiveTab(TabView.ADD);
+                    navigateTo(TabView.ADD);
                   }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all w-full text-left ${activeTab === TabView.ADD ? 'bg-indigo-600 text-white shadow-md' : 'text-gray-500 hover:bg-indigo-50 hover:text-indigo-600'}`}
               >
@@ -531,7 +595,7 @@ const App: React.FC = () => {
                 <div className="md:hidden">
                     {currentUser?.isAdmin && (
                         <button 
-                            onClick={() => setActiveTab(TabView.ADMIN)}
+                            onClick={() => navigateTo(TabView.ADMIN)}
                             className={`relative p-2 rounded-full hover:bg-gray-100 transition-colors ${activeTab === TabView.ADMIN ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}
                         >
                             <ShieldCheck size={24} />
@@ -551,7 +615,7 @@ const App: React.FC = () => {
                 {/* Community (Mobile Only - Desktop in Sidebar) */}
                 <div className="md:hidden">
                     <button 
-                        onClick={() => setActiveTab(TabView.COMMUNITY)}
+                        onClick={() => navigateTo(TabView.COMMUNITY)}
                         className={`relative p-2 rounded-full hover:bg-gray-100 transition-colors ${activeTab === TabView.COMMUNITY ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}
                     >
                         <Globe size={24} />
@@ -584,6 +648,13 @@ const App: React.FC = () => {
             </div>
           </main>
       </div>
+
+      {isDataLoading && (
+          <div className="fixed top-4 right-4 z-[70] flex items-center gap-2 rounded-full border border-indigo-100 bg-white/95 px-4 py-2 text-sm font-medium text-indigo-700 shadow-lg backdrop-blur">
+              <Loader2 size={16} className="animate-spin" />
+              <span>កំពុង Sync...</span>
+          </div>
+      )}
 
       {/* Notifications Modal */}
       {showNotifications && (
@@ -750,7 +821,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.DASHBOARD);
+                navigateTo(TabView.DASHBOARD);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               activeTab === TabView.DASHBOARD ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-600'
@@ -763,7 +834,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.TRANSACTIONS);
+                navigateTo(TabView.TRANSACTIONS);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               activeTab === TabView.TRANSACTIONS ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-600'
@@ -776,7 +847,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.LENDING);
+                navigateTo(TabView.LENDING);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               activeTab === TabView.LENDING ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-600'
@@ -789,7 +860,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.ADD);
+                navigateTo(TabView.ADD);
             }}
             className="flex flex-col items-center justify-center -mt-8"
           >
@@ -803,7 +874,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.SAVING);
+                navigateTo(TabView.SAVING);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               activeTab === TabView.SAVING ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-600'
@@ -816,7 +887,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.CRYPTO);
+                navigateTo(TabView.CRYPTO);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               activeTab === TabView.CRYPTO ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-600'
@@ -829,7 +900,7 @@ const App: React.FC = () => {
           <button
             onClick={() => {
                 setEditingTransaction(null);
-                setActiveTab(TabView.CATEGORIES);
+                navigateTo(TabView.CATEGORIES);
             }}
             className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
               activeTab === TabView.CATEGORIES || activeTab === TabView.ADMIN ? 'text-indigo-600 bg-indigo-50' : 'text-gray-400 hover:text-gray-600'

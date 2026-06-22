@@ -59,10 +59,27 @@ let state: AppState = {
 
 let currentUserId: string | null = null;
 let isOfflineMode: boolean = false;
+let currentUserProfile: UserProfile | null = null;
+let realtimeChannel: any = null;
+let refreshTimer: ReturnType<typeof setTimeout> | null = null;
+
+type DataChangeListener = () => void;
+const dataChangeListeners = new Set<DataChangeListener>();
 
 // --- HELPERS FOR SUPABASE SYNC ---
 
 const isCloudUser = () => currentUserId && !currentUserId.startsWith('local_') && !isOfflineMode;
+
+const notifyDataChanged = () => {
+    dataChangeListeners.forEach(listener => listener());
+};
+
+export const subscribeToDataChanges = (listener: DataChangeListener) => {
+    dataChangeListeners.add(listener);
+    return () => {
+        dataChangeListeners.delete(listener);
+    };
+};
 
 // Generic Fetch
 const fetchTable = async <T>(tableName: string, mapFn?: (data: any) => T, filterByUser: boolean = true): Promise<T[]> => {
@@ -161,6 +178,7 @@ export const setGuestModeStatus = async (enabled: boolean) => {
 
 export const initializeData = async (user: UserProfile) => {
     currentUserId = user.id;
+    currentUserProfile = user;
     
     // Always load local cache first to restore preferences (Currency, etc.)
     // For Cloud users, data arrays will be overwritten by DB fetch below.
@@ -187,65 +205,7 @@ export const initializeData = async (user: UserProfile) => {
                 throw pingError;
             }
 
-            // Parallel Fetch for Performance
-            const [
-                cats, txs, fams, loans, loanTxs, saves, saveTxs, cryptos, cryptoTxs, posts, reqs, clients, whitelist, admins
-            ] = await Promise.all([
-                fetchTable<Category>('categories'),
-                fetchTable<Transaction>('transactions'),
-                fetchTable<Family>('family_members'),
-                fetchTable<Lending>('lendings'),
-                fetchTable<LendingTransaction>('lending_transactions'),
-                fetchTable<Saving>('savings'),
-                fetchTable<SavingTransaction>('saving_transactions'),
-                fetchTable<CryptoAsset>('crypto_assets'),
-                fetchTable<CryptoTransaction>('crypto_transactions'),
-                fetchTable<CommunityPost>('community_posts', undefined, false), // Global
-                fetchTable<TransactionRequest>('transaction_requests'),
-                fetchTable<APIClient>('api_clients', mapAPIClient, false), // Global - No user filter
-                fetchTable<{email: string}>('wallet_whitelist', undefined, false), // Global - No user filter
-                getAdminEmailsFromDB()
-            ]);
-
-            // Handle Categories: Seed defaults if empty
-            if (cats.length === 0) {
-                // Generate unique IDs for this user to avoid collision if _id is PK
-                const seedCategories = INITIAL_CATEGORIES.map((c, index) => ({
-                    ...c,
-                    _id: `cat_${Date.now()}_${index}`, 
-                    user_id: user.id
-                }));
-                
-                // Fire and forget insert (awaiting it to ensure state consistency)
-                const { error: seedError } = await supabase.from('categories').insert(seedCategories);
-                
-                if (!seedError) {
-                    state.categories = seedCategories;
-                } else {
-                    console.error("Failed to seed default categories:", seedError);
-                    state.categories = [...INITIAL_CATEGORIES]; // Fallback to memory defaults (read-only effectively)
-                }
-            } else {
-                state.categories = cats;
-            }
-
-            state.transactions = txs;
-            state.familyMembers = fams.length ? fams : [{ _id: 'me', name: user.name }];
-            state.lendings = loans;
-            state.lendingTransactions = loanTxs;
-            state.savings = saves;
-            state.savingTransactions = saveTxs;
-            state.cryptoAssets = cryptos;
-            state.cryptoTransactions = cryptoTxs;
-            state.transactionRequests = reqs;
-            state.apiClients = clients;
-            state.walletWhitelist = whitelist.map(w => w.email);
-            state.adminEmails = admins.length > 0 ? admins : ['sengtha@gmail.com'];
-            
-            // Re-fetch guest mode to ensure state is in sync
-            await getSystemConfig();
-            
-            state.communityPosts = [...INITIAL_POSTS, ...posts]; 
+            await refreshCloudData(true);
 
         } catch (e: any) {
             console.error("Critical: Failed to load Cloud Data. Falling back to local cache.", e);
@@ -262,6 +222,112 @@ export const initializeData = async (user: UserProfile) => {
             if (state.categories.length === 0) loadMocks();
         }
     }
+};
+
+export const refreshCloudData = async (seedCategories = false) => {
+    if (!isCloudUser() || !currentUserProfile) return;
+
+    const [
+        cats, txs, fams, loans, loanTxs, saves, saveTxs, cryptos, cryptoTxs, posts, reqs, clients, whitelist, admins
+    ] = await Promise.all([
+        fetchTable<Category>('categories'),
+        fetchTable<Transaction>('transactions'),
+        fetchTable<Family>('family_members'),
+        fetchTable<Lending>('lendings'),
+        fetchTable<LendingTransaction>('lending_transactions'),
+        fetchTable<Saving>('savings'),
+        fetchTable<SavingTransaction>('saving_transactions'),
+        fetchTable<CryptoAsset>('crypto_assets'),
+        fetchTable<CryptoTransaction>('crypto_transactions'),
+        fetchTable<CommunityPost>('community_posts', undefined, false),
+        fetchTable<TransactionRequest>('transaction_requests'),
+        fetchTable<APIClient>('api_clients', mapAPIClient, false),
+        fetchTable<{email: string}>('wallet_whitelist', undefined, false),
+        getAdminEmailsFromDB()
+    ]);
+
+    if (seedCategories && cats.length === 0) {
+        const seedCategories = INITIAL_CATEGORIES.map((c, index) => ({
+            ...c,
+            _id: `cat_${Date.now()}_${index}`,
+            user_id: currentUserProfile!.id
+        }));
+
+        const { error: seedError } = await supabase.from('categories').insert(seedCategories);
+
+        if (!seedError) {
+            state.categories = seedCategories;
+        } else {
+            console.error("Failed to seed default categories:", seedError);
+            state.categories = [...INITIAL_CATEGORIES];
+        }
+    } else {
+        state.categories = cats.length ? cats : state.categories;
+    }
+
+    state.transactions = txs;
+    state.familyMembers = fams.length ? fams : [{ _id: 'me', name: currentUserProfile.name }];
+    state.lendings = loans;
+    state.lendingTransactions = loanTxs;
+    state.savings = saves;
+    state.savingTransactions = saveTxs;
+    state.cryptoAssets = cryptos;
+    state.cryptoTransactions = cryptoTxs;
+    state.transactionRequests = reqs;
+    state.apiClients = clients;
+    state.walletWhitelist = whitelist.map(w => w.email);
+    state.adminEmails = admins.length > 0 ? admins : ['sengtha@gmail.com'];
+    state.communityPosts = [...INITIAL_POSTS, ...posts];
+
+    await getSystemConfig();
+    saveToLocal();
+    notifyDataChanged();
+};
+
+export const subscribeToRealtimeUpdates = () => {
+    if (!isCloudUser()) return () => {};
+
+    if (realtimeChannel) {
+        supabase.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+    }
+
+    const tables = [
+        'categories',
+        'transactions',
+        'family_members',
+        'lendings',
+        'lending_transactions',
+        'savings',
+        'saving_transactions',
+        'crypto_assets',
+        'crypto_transactions',
+        'community_posts',
+        'transaction_requests',
+        'app_settings',
+        'api_clients',
+        'wallet_whitelist'
+    ];
+
+    realtimeChannel = supabase.channel(`chornor-realtime-${currentUserId}`);
+    tables.forEach(table => {
+        realtimeChannel.on('postgres_changes', { event: '*', schema: 'public', table }, () => {
+            if (refreshTimer) clearTimeout(refreshTimer);
+            refreshTimer = setTimeout(() => {
+                refreshCloudData().catch(error => console.error('Realtime refresh failed:', error));
+            }, 250);
+        });
+    });
+    realtimeChannel.subscribe();
+
+    return () => {
+        if (refreshTimer) clearTimeout(refreshTimer);
+        refreshTimer = null;
+        if (realtimeChannel) {
+            supabase.removeChannel(realtimeChannel);
+            realtimeChannel = null;
+        }
+    };
 };
 
 const loadFromLocalStorage = (uid: string) => {

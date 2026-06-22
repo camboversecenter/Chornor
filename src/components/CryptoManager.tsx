@@ -109,6 +109,21 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
     refreshList();
   }, []);
 
+  useEffect(() => {
+    return storage.subscribeToDataChanges(() => {
+      setAssets(storage.getCryptoAssets());
+      setSelectedAsset(prev => {
+        if (!prev) return prev;
+        const updated = storage.getCryptoAssets().find(a => a._id === prev._id) || null;
+        if (updated) {
+          setTransactions(storage.getCryptoTransactions(updated._id));
+          setManualPrice(updated.currentPrice.toString());
+        }
+        return updated;
+      });
+    });
+  }, []);
+
   // Effect to fetch Wallet Token Balances & Prices
   useEffect(() => {
       if (activeTab === 'WALLET' && account?.address) {
@@ -475,13 +490,13 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
                 <div className={`md:col-span-4 lg:col-span-4 md:block flex flex-col h-full ${view !== 'LIST' ? 'hidden' : 'block'}`}>
                     
                     {/* Summary Card */}
-                    <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-slate-800 to-slate-900 text-white p-4 rounded-xl shadow-lg">
+                    <div className="flex items-center justify-between mb-4 bg-white text-gray-900 p-4 rounded-xl shadow-sm border border-gray-100">
                         <div>
-                            <p className="text-xs text-gray-400">តម្លៃសរុប (Total Value)</p>
-                            <p className="font-bold text-2xl">{formatMoney(totalPortfolioValue)}</p>
+                            <p className="text-xs text-gray-500">តម្លៃសរុប (Total Value)</p>
+                            <p className="font-bold text-2xl text-gray-900">{formatMoney(totalPortfolioValue)}</p>
                         </div>
-                        <div className={`text-right ${totalPnL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                            <p className="text-xs text-gray-400">ចំណេញ/ខាត (All Time P/L)</p>
+                        <div className={`text-right ${totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                            <p className="text-xs text-gray-500">ចំណេញ/ខាត (All Time P/L)</p>
                             <p className="font-bold text-lg">{totalPnL >= 0 ? '+' : ''}{formatMoney(totalPnL)}</p>
                         </div>
                     </div>
@@ -754,22 +769,22 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
                         {/* Left Column: Card + Nav + Assets */}
                         <div className={`md:col-span-5 flex flex-col gap-6 overflow-y-auto scrollbar-hide pb-20 md:pb-0 ${walletView !== 'MAIN' ? 'hidden md:flex' : 'flex'}`}>
                             {/* Main Wallet Card */}
-                            <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden transform transition-transform hover:scale-[1.01]">
-                                <div className="absolute top-0 right-0 p-4 opacity-20"><Wallet size={100} /></div>
+                            <div className="bg-white rounded-3xl p-6 text-gray-900 shadow-sm border border-gray-100 relative overflow-hidden transform transition-transform hover:scale-[1.01]">
+                                <div className="absolute top-0 right-0 p-4 text-gray-100"><Wallet size={100} /></div>
                                 <div className="relative z-10">
                                     <div className="flex justify-between items-start">
-                                        <span className="text-indigo-200 text-xs font-mono bg-black/20 px-2 py-1 rounded">{account.address.slice(0,6)}...{account.address.slice(-4)}</span>
-                                        <button onClick={handleDisconnect} className="text-white/60 hover:text-white"><LogOut size={18} /></button>
+                                        <span className="text-gray-600 text-xs font-mono bg-gray-100 px-2 py-1 rounded">{account.address.slice(0,6)}...{account.address.slice(-4)}</span>
+                                        <button onClick={handleDisconnect} className="text-gray-400 hover:text-red-500"><LogOut size={18} /></button>
                                     </div>
                                     <div className="mt-6">
-                                        <p className="text-indigo-200 text-sm">តម្លៃសរុប (Total Holding)</p>
-                                        <h2 className="text-4xl font-bold mt-1">
+                                        <p className="text-gray-500 text-sm">តម្លៃសរុប (Total Holding)</p>
+                                        <h2 className="text-4xl font-bold text-gray-900 mt-1">
                                             {isFetchingBalances 
                                                 ? '...' 
                                                 : formatMoney(walletTotalValueUSD)
                                             }
                                         </h2>
-                                        <p className="text-xs text-indigo-300 mt-1">
+                                        <p className="text-xs text-gray-500 mt-1">
                                             Native: {Number(nativeBalance?.displayValue).toFixed(4)} {nativeBalance?.symbol}
                                         </p>
                                     </div>

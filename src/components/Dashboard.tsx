@@ -101,26 +101,26 @@ const Dashboard: React.FC<DashboardProps> = ({ categories, transactions, preferr
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Main Balance Card */}
-        <div className="md:col-span-2 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-between">
+        <div className="md:col-span-2 bg-white rounded-2xl p-6 text-gray-900 shadow-sm border border-gray-100 relative overflow-hidden flex flex-col justify-between">
             <div className="relative z-10">
                 <div className="flex justify-between items-start mb-4">
                     <div>
-                        <h2 className="text-sm font-medium opacity-80 mb-1">សមតុល្យសរុប (Total Balance)</h2>
-                        <div className="text-3xl md:text-4xl font-bold flex items-center gap-2">
-                            <Wallet className="w-8 h-8 md:w-10 md:h-10" />
+                        <h2 className="text-sm font-medium text-gray-600 mb-1">សមតុល្យសរុប (Total Balance)</h2>
+                        <div className="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-2">
+                            <Wallet className="w-8 h-8 md:w-10 md:h-10 text-gray-500" />
                             {formatAmount(balance)}
                         </div>
-                        <p className="text-[10px] opacity-60 mt-1">
+                        <p className="text-[10px] text-gray-500 mt-1">
                             {preferredCurrency === 'USD' ? `គិតជាដុល្លារ` : `គិតជាប្រាក់រៀល`} (1$ = {EXCHANGE_RATE}៛)
                         </p>
                     </div>
                     {currentUser && (
                         <div className="md:hidden flex flex-col items-end">
-                            <div className="bg-white/20 p-1 rounded-full backdrop-blur-md mb-1">
+                            <div className="bg-gray-100 p-1 rounded-full mb-1">
                                 {currentUser.picture ? (
-                                    <img src={currentUser.picture} alt="User" className="w-8 h-8 rounded-full border border-white/50" />
+                                    <img src={currentUser.picture} alt="User" className="w-8 h-8 rounded-full border border-gray-200" />
                                 ) : (
-                                    <div className="w-8 h-8 rounded-full bg-white/30 flex items-center justify-center font-bold">
+                                    <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-bold">
                                         {currentUser.name.charAt(0)}
                                     </div>
                                 )}
@@ -132,24 +132,24 @@ const Dashboard: React.FC<DashboardProps> = ({ categories, transactions, preferr
             
             {/* Quick Stats on Mobile/Small screens inside the main card */}
             <div className="mt-4 flex gap-4 md:hidden">
-                <div className="bg-white/20 rounded-xl p-3 flex-1 backdrop-blur-sm">
+                <div className="bg-gray-50 rounded-xl p-3 flex-1 border border-gray-100">
                     <div className="flex items-center gap-2 mb-1">
-                        <ArrowUpCircle className="w-4 h-4 text-green-300" />
-                        <span className="text-xs font-medium opacity-90">ចំណូល (Income)</span>
+                        <ArrowUpCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-xs font-medium text-gray-600">ចំណូល (Income)</span>
                     </div>
-                    <p className="font-semibold text-lg">{formatAmount(totalIncome)}</p>
+                    <p className="font-semibold text-lg text-gray-900">{formatAmount(totalIncome)}</p>
                 </div>
-                <div className="bg-white/20 rounded-xl p-3 flex-1 backdrop-blur-sm">
+                <div className="bg-gray-50 rounded-xl p-3 flex-1 border border-gray-100">
                     <div className="flex items-center gap-2 mb-1">
-                        <ArrowDownCircle className="w-4 h-4 text-red-300" />
-                        <span className="text-xs font-medium opacity-90">ចំណាយ (Expense)</span>
+                        <ArrowDownCircle className="w-4 h-4 text-red-600" />
+                        <span className="text-xs font-medium text-gray-600">ចំណាយ (Expense)</span>
                     </div>
-                    <p className="font-semibold text-lg">{formatAmount(totalExpense)}</p>
+                    <p className="font-semibold text-lg text-gray-900">{formatAmount(totalExpense)}</p>
                 </div>
             </div>
 
             {/* Decorative circle */}
-            <div className="absolute -right-5 -top-5 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+            <div className="absolute -right-5 -top-5 w-32 h-32 bg-gray-100 rounded-full blur-2xl"></div>
         </div>
 
         {/* Desktop Income/Expense Cards (Stacked on right) */}

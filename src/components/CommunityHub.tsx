@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { CommunityPost, PostType, ReactionType } from '../types';
 import * as storage from '../services/storageService';
 import { validateCommunityPost } from '../services/geminiService';
 import { Send, TrendingDown, TrendingUp, Loader2, Info, ArrowDownCircle, Gem, Search, ThumbsUp, ThumbsDown, AlertTriangle, ShieldAlert, ArrowUp, User, XCircle, Filter, Edit3, MessageSquare } from 'lucide-react';
 
-const POSTS_PER_PAGE = 5;
+const POSTS_PER_PAGE = 10;
 
 const CommunityHub: React.FC = () => {
   const [activeTab, setActiveTab] = useState<PostType>('REDUCE_EXPENSE');
@@ -19,43 +19,75 @@ const CommunityHub: React.FC = () => {
   const [selectedAuthor, setSelectedAuthor] = useState<string | null>(null);
   
   // Pagination State
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(POSTS_PER_PAGE);
   const [loadingMore, setLoadingMore] = useState(false);
+  const feedRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Reset when tab changes
-    setPosts([]);
-    setPage(1);
-    setHasMore(true);
+    setVisibleCount(POSTS_PER_PAGE);
     setSelectedAuthor(null); // Reset author filter on tab change
-    loadPosts(1, true);
   }, [activeTab]);
 
-  const loadPosts = (pageNum: number, reset: boolean = false) => {
-    setLoadingMore(true);
-    // Simulate network delay for "Large Data" feel
-    setTimeout(() => {
-        const { posts: newPosts, total } = storage.getCommunityPosts(pageNum, POSTS_PER_PAGE);
-        
-        setPosts(prev => {
-            const combined = reset ? newPosts : [...prev, ...newPosts];
-            return Array.from(new Map(combined.map(p => [p._id, p])).values());
-        });
-        
-        if ((pageNum * POSTS_PER_PAGE) >= total) {
-            setHasMore(false);
-        }
-        
-        setLoadingMore(false);
-    }, 500);
+  useEffect(() => {
+    loadPosts();
+
+    return storage.subscribeToDataChanges(() => {
+      loadPosts();
+    });
+  }, []);
+
+  useEffect(() => {
+    setVisibleCount(POSTS_PER_PAGE);
+  }, [activeTab, searchQuery, selectedAuthor]);
+
+  const loadPosts = () => {
+    const { posts: allPosts } = storage.getCommunityPosts(1, Number.MAX_SAFE_INTEGER);
+    setPosts(allPosts);
   };
 
+  // Filter posts by Tab, Search Query, AND Author
+  const filteredPosts = useMemo(() => posts.filter(p => {
+      const matchesTab = p.type === activeTab;
+      const matchesSearch = p.content.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesAuthor = selectedAuthor ? p.author === selectedAuthor : true;
+      return matchesTab && matchesSearch && matchesAuthor;
+  }), [posts, activeTab, searchQuery, selectedAuthor]);
+  const visiblePosts = filteredPosts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredPosts.length;
+
   const handleLoadMore = () => {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      loadPosts(nextPage);
+      if (loadingMore) return;
+      setLoadingMore(true);
+      requestAnimationFrame(() => {
+          setVisibleCount(prev => prev + POSTS_PER_PAGE);
+          setLoadingMore(false);
+      });
   };
+
+  const handleFeedScroll = () => {
+      const el = feedRef.current;
+      if (!el || loadingMore || !hasMore) return;
+
+      const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (distanceFromBottom < 160) {
+          handleLoadMore();
+      }
+  };
+
+  useEffect(() => {
+      const handleWindowScroll = () => {
+          if (loadingMore || !hasMore) return;
+
+          const distanceFromBottom = document.documentElement.scrollHeight - window.scrollY - window.innerHeight;
+          if (distanceFromBottom < 220) {
+              handleLoadMore();
+          }
+      };
+
+      window.addEventListener('scroll', handleWindowScroll, { passive: true });
+      return () => window.removeEventListener('scroll', handleWindowScroll);
+  }, [loadingMore, hasMore]);
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,14 +147,6 @@ const CommunityHub: React.FC = () => {
           return { ...p, reactions: updatedReactions, userReaction: type };
       }));
   };
-
-  // Filter posts by Tab, Search Query, AND Author
-  const filteredPosts = posts.filter(p => {
-      const matchesTab = p.type === activeTab;
-      const matchesSearch = p.content.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesAuthor = selectedAuthor ? p.author === selectedAuthor : true;
-      return matchesTab && matchesSearch && matchesAuthor;
-  });
 
   const getPlaceholder = () => {
       if (activeTab === 'REDUCE_EXPENSE') return 'ចែករំលែកគន្លឹះកាត់បន្ថយចំណាយ (Share tips to reduce expense)...';
@@ -243,7 +267,11 @@ const CommunityHub: React.FC = () => {
             </div>
 
             {/* CENTER FEED */}
-            <div className="lg:col-span-6 space-y-6 overflow-y-auto scrollbar-hide lg:pr-2 lg:h-full lg:pb-10">
+            <div
+                ref={feedRef}
+                onScroll={handleFeedScroll}
+                className="lg:col-span-6 space-y-6 overflow-y-auto scrollbar-hide lg:pr-2 lg:h-full lg:pb-10"
+            >
                 {/* Mobile Create Post (Shown above feed on mobile, hidden on desktop if we want strict separation, but let's keep it consistent or move it) */}
                 {/* We'll keep Create Post inline for mobile, but maybe sticky right for desktop? Let's keep it inline for both for simplicity of flow, 
                     OR move creation to the right column on desktop. Let's move creation to Right Col for desktop. */}
@@ -275,7 +303,7 @@ const CommunityHub: React.FC = () => {
                         {activeTab === 'INCREASE_REVENUE' && 'Increase Revenue Feed'}
                         {activeTab === 'DIGITAL_ASSET' && 'Digital Asset Feed'}
                     </h2>
-                    <span className="text-xs text-gray-400">Showing recent posts</span>
+                    <span className="text-xs text-gray-400">Showing {Math.min(visibleCount, filteredPosts.length)} of {filteredPosts.length}</span>
                 </div>
 
                 {/* Filter Status */}
@@ -295,7 +323,7 @@ const CommunityHub: React.FC = () => {
                             <p className="text-xs text-gray-400 mt-1">Be the first to share something!</p>
                         </div>
                     ) : (
-                        filteredPosts.map(post => (
+                        visiblePosts.map(post => (
                             <div key={post._id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 transition-all hover:shadow-md group">
                                 <div className="flex justify-between items-start mb-3">
                                     <div 
@@ -322,7 +350,7 @@ const CommunityHub: React.FC = () => {
                     )}
                     
                     {/* Load More Trigger */}
-                    {hasMore && !searchQuery && !selectedAuthor && (
+                    {hasMore && (
                         <div className="flex justify-center py-6">
                             <button 
                                 onClick={handleLoadMore} 

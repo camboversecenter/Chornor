@@ -40,6 +40,20 @@ const LendingManager: React.FC<LendingManagerProps> = ({ familyMembers, preferre
     refreshList();
   }, []);
 
+  useEffect(() => {
+    return storage.subscribeToDataChanges(() => {
+      setLendings(storage.getLendings());
+      setSelectedLending(prev => {
+        if (!prev) return prev;
+        const updated = storage.getLendings().find(l => l._id === prev._id) || null;
+        if (updated) {
+          setTransactions(storage.getTransactionsByLendingId(updated._id));
+        }
+        return updated;
+      });
+    });
+  }, []);
+
   const refreshList = () => {
     setLendings(storage.getLendings());
   };
@@ -303,24 +317,24 @@ const LendingManager: React.FC<LendingManagerProps> = ({ familyMembers, preferre
 
               <div className="p-4 space-y-4 bg-white rounded-b-2xl shadow-sm">
                   {/* Summary Card */}
-                  <div className="bg-gradient-to-br from-slate-800 to-slate-900 text-white p-5 rounded-2xl shadow-lg">
-                      <div className="grid grid-cols-2 gap-4 text-sm opacity-90 mb-4">
+                  <div className="bg-white text-gray-900 p-5 rounded-2xl shadow-sm border border-gray-100">
+                      <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                           <div>
-                              <p className="text-xs text-gray-400">អ្នកឱ្យខ្ចី (Lender)</p>
-                              <p className="font-semibold">{selectedLending.lender || '-'}</p>
+                              <p className="text-xs text-gray-500">អ្នកឱ្យខ្ចី (Lender)</p>
+                              <p className="font-semibold text-gray-900">{selectedLending.lender || '-'}</p>
                           </div>
                           <div className="text-right">
-                              <p className="text-xs text-gray-400">អ្នកខ្ចី (Borrower)</p>
-                              <p className="font-semibold">{selectedLending.borrower || '-'}</p>
+                              <p className="text-xs text-gray-500">អ្នកខ្ចី (Borrower)</p>
+                              <p className="font-semibold text-gray-900">{selectedLending.borrower || '-'}</p>
                           </div>
                       </div>
-                      <div className="h-px bg-white/10 my-2"></div>
+                      <div className="h-px bg-gray-100 my-2"></div>
                       <div className="flex justify-between items-end">
                           <div>
-                              <p className="text-xs text-gray-400 mb-1">
+                              <p className="text-xs text-gray-500 mb-1">
                                   {selectedLending.paymentMethod === 'មិនកំណត់' ? 'នៅសល់ (Remaining)' : 'ទឹកប្រាក់ដើម (Principal)'}
                               </p>
-                              <span className="text-2xl font-bold">
+                              <span className="text-2xl font-bold text-gray-900">
                                   {selectedLending.paymentMethod === 'មិនកំណត់' 
                                     ? getRemainingBalance(selectedLending)
                                     : getDisplayTotal(selectedLending.amountRiel, selectedLending.amountDollar)
@@ -328,8 +342,8 @@ const LendingManager: React.FC<LendingManagerProps> = ({ familyMembers, preferre
                               </span>
                           </div>
                           <div className="text-right">
-                               <p className="text-xs text-gray-400">ការប្រាក់</p>
-                               <p className="font-bold">{selectedLending.interestRate}%</p>
+                               <p className="text-xs text-gray-500">ការប្រាក់</p>
+                               <p className="font-bold text-gray-900">{selectedLending.interestRate}%</p>
                           </div>
                       </div>
                   </div>
