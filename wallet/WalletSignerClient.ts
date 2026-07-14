@@ -56,7 +56,7 @@ export class WalletSignerClient {
       if (!entry) return;
       this.pending.delete(res.id);
       if (res.ok) entry.resolve(res);
-      else entry.reject(new Error(res.error));
+      else entry.reject(new Error('error' in res ? res.error : 'Signer worker error'));
     };
     this.worker.onerror = (ev) => {
       const err = new Error(ev.message || 'Signer worker error');
@@ -95,7 +95,7 @@ export class WalletSignerClient {
       wordCount: opts?.wordCount,
       accountIndex: opts?.accountIndex,
     });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'generate') throw new Error('Unexpected response');
     return {
       record: res.record,
@@ -115,7 +115,7 @@ export class WalletSignerClient {
     accountIndex?: number;
   }): Promise<{ address: string; secretKind: WalletSecretKind }> {
     const res = await this.call({ type: 'unlockPin', ...args });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'unlockPin') throw new Error('Unexpected response');
     return { address: res.address, secretKind: res.secretKind };
   }
@@ -127,28 +127,28 @@ export class WalletSignerClient {
     accountIndex?: number;
   }): Promise<{ address: string; secretKind: WalletSecretKind }> {
     const res = await this.call({ type: 'unlockPasskey', ...args });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'unlockPasskey') throw new Error('Unexpected response');
     return { address: res.address, secretKind: res.secretKind };
   }
 
   async signDigest(digestHex: string): Promise<EthSignature> {
     const res = await this.call({ type: 'signDigest', digestHex });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'signDigest') throw new Error('Unexpected response');
     return res.signature;
   }
 
   async personalSign(message: string): Promise<EthSignature> {
     const res = await this.call({ type: 'personalSign', message });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'personalSign') throw new Error('Unexpected response');
     return res.signature;
   }
 
   async getAddress(): Promise<string | null> {
     const res = await this.call({ type: 'getAddress' });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'getAddress') throw new Error('Unexpected response');
     return res.address;
   }
@@ -160,7 +160,7 @@ export class WalletSignerClient {
    */
   async exportSecret(): Promise<SecretBackup> {
     const res = await this.call({ type: 'exportSecret' });
-    if (!res.ok) throw new Error(res.error);
+    if (res.ok === false) throw new Error(res.error);
     if (res.type !== 'exportSecret') throw new Error('Unexpected response');
     return {
       secretKind: res.secretKind,

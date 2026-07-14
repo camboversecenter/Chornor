@@ -36,8 +36,11 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
   
   // Scanning State
   const [isScanning, setIsScanning] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
 
   // Item/Receipt State
   const [items, setItems] = useState<TransactionItem[]>([]);
@@ -86,6 +89,12 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
         setAmount(total.toFixed(2));
     }
   }, [items]);
+
+  useEffect(() => {
+    return () => {
+      cameraStreamRef.current?.getTracks().forEach(track => track.stop());
+    };
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,7 +196,72 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      await scanReceiptFile(file);
 
+      // Reset input
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
+      if (galleryInputRef.current) galleryInputRef.current.value = '';
+  };
+
+  const closeCamera = () => {
+      cameraStreamRef.current?.getTracks().forEach(track => track.stop());
+      cameraStreamRef.current = null;
+      if (videoRef.current) videoRef.current.srcObject = null;
+      setIsCameraOpen(false);
+  };
+
+  const openCamera = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+          // Older mobile browsers can still open their native camera through this input.
+          cameraInputRef.current?.click();
+          return;
+      }
+
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: { ideal: 'environment' } },
+              audio: false
+          });
+          cameraStreamRef.current = stream;
+          setIsCameraOpen(true);
+
+          // The video element is mounted after the state update.
+          requestAnimationFrame(() => {
+              if (videoRef.current) {
+                  videoRef.current.srcObject = stream;
+                  void videoRef.current.play();
+              }
+          });
+      } catch (error) {
+          console.error('Unable to open camera:', error);
+          showAlert(
+              'Camera unavailable',
+              'សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា ហើយព្យាយាមម្តងទៀត។ (Please allow camera access and try again.)',
+              'warning'
+          );
+      }
+  };
+
+  const capturePhoto = () => {
+      const video = videoRef.current;
+      if (!video || !video.videoWidth || !video.videoHeight) return;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+          if (!blob) return;
+          const file = new File([blob], `receipt-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          closeCamera();
+          void scanReceiptFile(file);
+      }, 'image/jpeg', 0.92);
+  };
+
+  const scanReceiptFile = async (file: File) => {
       setIsScanning(true);
       const data = await parseReceipt(file, categories);
       setIsScanning(false);
@@ -198,7 +272,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
           if (data.date) setDate(data.date);
           if (data.description) setDescription(data.description);
           if (data.categoryId) setCategoryId(data.categoryId);
-          
           if (data.items && data.items.length > 0) {
               setItems(data.items);
               setShowItemForm(true);
@@ -206,10 +279,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
       } else {
           showAlert("Scan Error", "មិនអាចអានវិក្កយបត្របានទេ។ សូមព្យាយាមម្តងទៀត ឬបញ្ចូលដោយដៃ។ (Could not read receipt)", "error");
       }
-      
-      // Reset input
-      if (cameraInputRef.current) cameraInputRef.current.value = '';
-      if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
 
   // Filter categories for easy selection (group by Income/Expense)
@@ -243,7 +312,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
             
             <button 
                 type="button"
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={openCamera}
                 disabled={isScanning}
                 className="flex items-center gap-2 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors"
                 title="Use Camera"
@@ -263,6 +332,38 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
             </button>
         </div>
       </div>
+
+      {isCameraOpen && (
+          <div className="fixed inset-0 z-[100] bg-black flex flex-col" role="dialog" aria-modal="true" aria-label="Capture receipt">
+              <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+                  <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="h-full w-full object-contain"
+                  />
+                  <button
+                      type="button"
+                      onClick={closeCamera}
+                      className="absolute top-4 right-4 rounded-full bg-black/60 p-3 text-white"
+                      aria-label="Close camera"
+                  >
+                      <X size={24} />
+                  </button>
+              </div>
+              <div className="flex shrink-0 items-center justify-center bg-black px-6 py-6 safe-area-inset-bottom">
+                  <button
+                      type="button"
+                      onClick={capturePhoto}
+                      className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white/25"
+                      aria-label="Take photo"
+                  >
+                      <span className="h-16 w-16 rounded-full bg-white" />
+                  </button>
+              </div>
+          </div>
+      )}
 
       {isScanning && (
           <div className="mb-6 bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-center justify-center gap-3 animate-pulse">

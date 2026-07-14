@@ -1,4 +1,4 @@
-import { supabase as rawSupabase } from "../services/supabase";
+import { supabase as rawSupabase } from "../src/services/supabaseClient";
 import { WalletStorageAdapter } from "./useWalletSigner";
 import { WalletVaultRecord } from "./messages";
 

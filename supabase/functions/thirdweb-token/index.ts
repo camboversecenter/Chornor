@@ -46,12 +46,29 @@ serve(async (req) => {
     // ------------------------------------------------------------------
     const userEmail = user.email?.toLowerCase() || '';
     
-    // Check wallet_whitelist table
-    const { data: whitelistData, error: whitelistError } = await supabaseClient
+    // Use the service-role client only after authenticating the caller above.
+    // wallet_whitelist is an admin-owned table and is commonly protected by
+    // RLS, so querying it with the user's client can make valid rows invisible.
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!serviceRoleKey) {
+      throw new Error('Server Config Error: Missing SUPABASE_SERVICE_ROLE_KEY');
+    }
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      serviceRoleKey,
+      { auth: { persistSession: false } }
+    );
+
+    const { data: whitelistData, error: whitelistError } = await adminClient
       .from('wallet_whitelist')
       .select('email')
-      .eq('email', userEmail)
-      .single();
+      .ilike('email', userEmail)
+      .maybeSingle();
+
+    if (whitelistError) {
+      console.error('Whitelist lookup failed:', whitelistError.message);
+      throw new Error(`Whitelist lookup failed: ${whitelistError.message}`);
+    }
 
     // If no record found, deny access
     if (!whitelistData) {
