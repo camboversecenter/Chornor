@@ -96,11 +96,10 @@ server), `npm start` (run the production bundle), and `npm run lint`
 
 ## Notes
 
-- The repository was bootstrapped from a Google AI Studio "Fitness & Heart Rate
-  Tracker" template. Some template remnants remain, such as the fitness fields
-  on `UserProfile`, the coach endpoint in `server.ts`, and `metadata.json`. The
-  live finance features live in `src/services/geminiService.ts` and the feature
-  components.
+- The codebase started from a "Fitness & Heart Rate Tracker" prototype, so a few
+  fitness remnants remain (for example the fitness fields on `UserProfile` and
+  some unused helper components). The live finance features live in
+  `src/services/geminiService.ts` and the feature components.
 - Further technical detail is in `src/doc/TECHNICAL_SPEC.md` and
   `src/doc/API_REFERENCE.md`.
 </content>
