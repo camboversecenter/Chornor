@@ -6,6 +6,10 @@ and US Dollar) finance manager built for the Cambodian market. It runs as an
 offline-capable web app: guests work fully offline against browser storage,
 while signed-in users get cloud sync through Supabase.
 
+Chornor is a community project incubated by the CamboVerse Center, National
+University of Management. It is free to use and licensed under
+AGPL-3.0-or-later.
+
 ## How to read these docs
 
 Start with the architecture overview, then the user roles document, then the
