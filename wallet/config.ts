@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/config.ts
 import { base, baseSepolia } from 'viem/chains';
 import type { Argon2Params } from './messages';

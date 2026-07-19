@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect } from 'react';
 import { loginWithGoogle, createLocalUser } from '../services/authService';
 import { getSystemConfig } from '../services/storageService';

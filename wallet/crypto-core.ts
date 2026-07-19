@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/crypto-core.ts
 //
 // Environment-agnostic crypto used INSIDE the signer worker. Uses only the

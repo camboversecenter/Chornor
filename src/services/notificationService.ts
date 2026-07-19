@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import * as storage from './storageService';
 import { AppNotification, LendingTransaction, Transaction, SavingTransaction } from '../types';
 import { CURRENCY_USD, CURRENCY_KHR } from '../constants';

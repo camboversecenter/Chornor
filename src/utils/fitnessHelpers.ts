@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import { Workout, WorkoutType, UserProfile } from '../types';
 
 // Standard MET values for various exercise categories

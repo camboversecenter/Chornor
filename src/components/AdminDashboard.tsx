@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Users, Mail, Plus, Trash2, RefreshCw, Key, Wallet, AlertCircle, Settings, ToggleLeft, ToggleRight, Database, Server, Copy, Loader2 } from 'lucide-react';
 import { getAllUsersStats, getAdminList, addAdminEmail, removeAdminEmail, getWalletWhitelist, addToWalletWhitelist, removeFromWalletWhitelist, getGuestModeStatus, setGuestModeStatus, getAPIClients, createAPIClient, toggleAPIClientStatus, deleteAPIClient } from '../services/storageService';

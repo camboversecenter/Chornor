@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, Play, Pause, Save, ArrowLeft, RefreshCw } from 'lucide-react';
 import { Workout, WorkoutType, UserProfile } from '../types';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/WalletSignerClient.ts
 //
 // Main-thread handle to the isolated signer worker. Provides a promise-based API

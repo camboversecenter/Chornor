@@ -9,8 +9,8 @@ Chornor (ចំណូលចំណាយ, "income and expenses") is a dual-curren
 US Dollar) personal finance web app for the Cambodian market. It works offline
 for guests via `localStorage` and syncs to Supabase for signed-in users.
 
-- **Owned by its student developers. Incubated by the CamboVerse Center, located
-  at the National University of Management.**
+- **Owned by the student team Tomorrow Rich Together. Incubated by the CamboVerse
+  Center, located at the National University of Management.**
 - **License:** AGPL-3.0-or-later. It is a free community project funded by
   support, donations, grants, and training.
 - **Detailed docs:** see the `docs/` folder (architecture, user roles, and a
@@ -86,9 +86,11 @@ app.
 
 - The project is AGPL-3.0-or-later. Keep new dependencies compatible (current
   dependencies are MIT or Apache-2.0).
-- Copyright is held by the Chornor student developers. New source files should
-  carry a short AGPL notice header naming that holder (for example
-  `Copyright (C) <year> The Chornor Authors`).
+- Copyright is held by the student team Tomorrow Rich Together. Source files
+  carry a short SPDX/AGPL header, and new files must include it using the comment
+  style that fits the file type:
+  `SPDX-License-Identifier: AGPL-3.0-or-later` and
+  `Copyright (C) <year> Tomorrow Rich Together`.
 
 ## Git workflow
 

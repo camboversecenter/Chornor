@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";

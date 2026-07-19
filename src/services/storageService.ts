@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import { 
     Category, Transaction, Family, Currency, Lending, LendingTransaction, 
     Saving, SavingTransaction, CryptoAsset, CryptoTransaction, 

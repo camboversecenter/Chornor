@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import { GoogleGenAI, Type } from "@google/genai";
 import { Transaction, Category, Lending, Saving, CryptoAsset, TransactionItem, AppNotification, PostType, CommunityPost } from "../types";
 import * as storage from "./storageService";

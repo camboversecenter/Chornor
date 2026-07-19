@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import React from 'react';
 import { X, ShieldCheck, Heart, Users, Coins, AlertTriangle } from 'lucide-react';
 

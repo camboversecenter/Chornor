@@ -6,9 +6,10 @@ and US Dollar) finance manager built for the Cambodian market. It runs as an
 offline-capable web app: guests work fully offline against browser storage,
 while signed-in users get cloud sync through Supabase.
 
-Chornor is a community project owned by its student developers and incubated by
-the CamboVerse Center, which is located at the National University of
-Management. It is free to use and licensed under AGPL-3.0-or-later.
+Chornor is a community project owned by the student team Tomorrow Rich Together
+and incubated by the CamboVerse Center, which is located at the National
+University of Management. It is free to use and licensed under
+AGPL-3.0-or-later.
 
 ## How to read these docs
 

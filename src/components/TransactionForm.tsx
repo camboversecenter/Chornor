@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect, useRef } from 'react';
 import { Category, Transaction, Family, Currency, ReminderFrequency, TransactionItem } from '../types';
 import { suggestCategory, parseReceipt } from '../services/geminiService';
