@@ -11,9 +11,10 @@ It is an offline-capable Progressive Web App. Guests get full functionality
 backed by the browser's `localStorage`, while signed-in users (Google OAuth via
 Supabase) get cloud sync and realtime updates.
 
-> Chornor is a community project incubated by the **CamboVerse Center, National
-> University of Management**. It is free to use, and is sustained through
-> community support, donations, grants, and training.
+> Chornor is a community project owned by its student developers and incubated by
+> the **CamboVerse Center**, located at the **National University of Management**.
+> It is free to use, and is sustained through community support, donations,
+> grants, and training.
 
 ## Features
 
