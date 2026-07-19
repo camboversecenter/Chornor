@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Tomorrow Rich Together
 import React from 'react';
-import { X, ShieldCheck, Heart, Users, Coins, AlertTriangle } from 'lucide-react';
+import { X, ShieldCheck, Heart, Users, Code2, AlertTriangle } from 'lucide-react';
 
 interface CommunityLicenseProps {
   onClose: () => void;
@@ -10,7 +10,7 @@ interface CommunityLicenseProps {
 const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in" onClick={onClose}>
-        <div 
+        <div
             className="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative animate-in zoom-in-95"
             onClick={e => e.stopPropagation()}
         >
@@ -23,16 +23,16 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
                     <X size={20} />
                 </button>
             </div>
-            
+
             <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
                 <div className="text-center mb-4">
                     <span className="inline-block px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold border border-indigo-100">
-                        ស្ថានភាព៖ ដំណាក់កាលអភិវឌ្ឍន៍ (Phase: Development & Pre-Token)
+                        ស្ថានភាព៖ គម្រោងសហគមន៍បើកចំហ (Free & Open Source)
                     </span>
                 </div>
 
                 <div className="space-y-6 text-sm text-gray-700 leading-relaxed">
-                    
+
                     {/* Point 1 */}
                     <div className="flex gap-3">
                         <div className="mt-1 bg-green-100 p-2 rounded-lg text-green-600 shrink-0 h-fit">
@@ -40,8 +40,8 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
                         </div>
                         <div>
                             <h3 className="font-bold text-gray-900 mb-1">១. សិទ្ធិប្រើប្រាស់ និងការគាំទ្រ (Usage & Support)</h3>
-                            <p className="mb-2">កម្មវិធីនេះអនុញ្ញាតឱ្យប្រើប្រាស់ដោយ ឥតគិតថ្លៃ (Free to Use)។ ដើម្បីផ្គត់ផ្គង់ការចំណាយលើប្រតិបត្តិការ និងការអភិវឌ្ឍ ក្រុមហ៊ុន E-KHMER Technology Co., Ltd. ស្វាគមន៍រាល់ការបរិច្ចាគ (Donations) និងរក្សាសិទ្ធិក្នុងការរកប្រាក់ចំណូលតាមរយៈការផ្សព្វផ្សាយពាណិជ្ជកម្ម (Ads) ឬសេវាកម្មផ្សេងៗ។</p>
-                            <p className="text-xs text-gray-500 italic">(Users may use this platform for free. To cover development and operating costs, E-KHMER Technology Co., Ltd. welcomes donations and reserves the right to monetize via advertisements or other services.)</p>
+                            <p className="mb-2">Chornor ជាគម្រោងសហគមន៍ ដែលអនុញ្ញាតឱ្យប្រើប្រាស់ដោយ ឥតគិតថ្លៃ (Free to Use)។ ដើម្បីទ្រទ្រង់ការអភិវឌ្ឍ និងប្រតិបត្តិការ គម្រោងនេះពឹងផ្អែកលើ ការគាំទ្រពីសហគមន៍ ការបរិច្ចាគ (Donations) មូលនិធិឧបត្ថម្ភ (Grants) និងការបណ្តុះបណ្តាល (Training)។</p>
+                            <p className="text-xs text-gray-500 italic">(Chornor is a community project, free to use. It is sustained through community support, donations, grants, and training, not through proprietary licensing.)</p>
                         </div>
                     </div>
 
@@ -51,21 +51,21 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
                             <Users size={18} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-gray-900 mb-1">២. កម្មសិទ្ធិបច្ចុប្បន្ន (Current Ownership)</h3>
-                            <p className="mb-2">បច្ចុប្បន្ននេះ កម្មវិធីនិងកូដ (Source Code) ត្រូវបានអភិវឌ្ឍនិងថែរក្សាដោយក្រុមហ៊ុន E-KHMER Technology Co., Ltd.។ ដើម្បីធានាសុវត្ថិភាពមុនពេលលក់ Token កូដត្រូវបានរក្សាទុកជាឯកជន (Closed Source)។ ហាមដាច់ខាតការចម្លង ឬបំបែកកូដ (Reverse Engineering) ដោយគ្មានការអនុញ្ញាត។</p>
-                            <p className="text-xs text-gray-500 italic">(Currently, the source code is proprietary and maintained by E-KHMER Technology Co., Ltd. for security purposes. Reverse engineering or unauthorized copying is strictly prohibited.)</p>
+                            <h3 className="font-bold text-gray-900 mb-1">២. កម្មសិទ្ធិ (Ownership)</h3>
+                            <p className="mb-2">កម្មវិធី និងកូដ (Source Code) ជាកម្មសិទ្ធិរបស់ក្រុមនិស្សិត "Tomorrow Rich Together" ដែលត្រូវបានបណ្តុះ (Incubated) ដោយ CamboVerse Center មានទីតាំងនៅ សាកលវិទ្យាល័យជាតិគ្រប់គ្រង (National University of Management)។</p>
+                            <p className="text-xs text-gray-500 italic">(The app and its source code are owned by the student team "Tomorrow Rich Together", incubated by the CamboVerse Center, located at the National University of Management.)</p>
                         </div>
                     </div>
 
                     {/* Point 3 */}
                     <div className="flex gap-3">
                         <div className="mt-1 bg-purple-100 p-2 rounded-lg text-purple-600 shrink-0 h-fit">
-                            <Coins size={18} />
+                            <Code2 size={18} />
                         </div>
                         <div>
-                            <h3 className="font-bold text-gray-900 mb-1">៣. ការសន្យាអនាគត & Token Sale (Future Transition)</h3>
-                            <p className="mb-2">នេះជាកិច្ចសន្យារបស់យើង៖ នៅពេលការលក់ Token (Token Sale) បានបញ្ចប់ជាស្ថាពរ ក្រុមហ៊ុននឹងដាក់ឱ្យប្រើប្រាស់កូដជាសាធារណៈ (Open Source) ក្រោមអាជ្ញាប័ណ្ណ Apache License 2.0។ នៅពេលនោះ ការសម្រេចចិត្តនឹងត្រូវធ្វើឡើងតាមរយៈសហគមន៍ (Community Decision/DAO)។</p>
-                            <p className="text-xs text-gray-500 italic">(We pledge to release the source code under the Apache License 2.0 upon completion of the Token Sale. Governance rights will then transfer to the Community.)</p>
+                            <h3 className="font-bold text-gray-900 mb-1">៣. កូដបើកចំហ និងអាជ្ញាប័ណ្ណ (Open Source & License)</h3>
+                            <p className="mb-2">កូដត្រូវបានបើកចំហជាសាធារណៈ (Open Source) ក្រោមអាជ្ញាប័ណ្ណ GNU AGPL v3.0 ឬ ក្រោយៗ។ អ្នករាល់គ្នាមានសិទ្ធិ ប្រើប្រាស់ សិក្សា ចែករំលែក និងកែប្រែ។ ប្រសិនបើអ្នកដាក់កំណែដែលបានកែប្រែឱ្យដំណើរការជាសេវាកម្មតាមបណ្តាញ (Hosted Service) អ្នកត្រូវចែករំលែកកូដដែលបានកែប្រែនោះជូនអ្នកប្រើប្រាស់ផងដែរ។</p>
+                            <p className="text-xs text-gray-500 italic">(The source code is open under the GNU AGPL v3.0 or later. You may use, study, share, and modify it. If you run a modified version as a hosted network service, you must also make your modified source available to its users.)</p>
                         </div>
                     </div>
 
@@ -76,8 +76,8 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
                         </div>
                         <div>
                             <h3 className="font-bold text-gray-900 mb-1">៤. ការបដិសេធការទទួលខុសត្រូវ (Limitation of Liability)</h3>
-                            <p className="mb-2">កម្មវិធីនេះត្រូវបានផ្តល់ជូន "ដូចដែលបានមាន" (AS IS) ដោយគ្មានការធានាណាមួយឡើយ។ ក្រុមហ៊ុន E-KHMER Technology Co., Ltd. មិនទទួលខុសត្រូវចំពោះការបាត់បង់ទិន្នន័យ ឬទ្រព្យសម្បត្តិណាមួយដែលកើតឡើងពីការប្រើប្រាស់កម្មវិធីនេះឡើយ។ អ្នកប្រើប្រាស់ត្រូវទទួលខុសត្រូវដោយខ្លួនឯង។</p>
-                            <p className="text-xs text-gray-500 italic">(The software is provided "AS IS" without warranty of any kind. E-KHMER Technology Co., Ltd. is not liable for any damages or losses arising from the use of this platform. Users assume full responsibility.)</p>
+                            <p className="mb-2">កម្មវិធីនេះត្រូវបានផ្តល់ជូន "ដូចដែលមាន" (AS IS) ដោយគ្មានការធានាណាមួយឡើយ។ ក្រុម "Tomorrow Rich Together" មិនទទួលខុសត្រូវចំពោះការបាត់បង់ទិន្នន័យ ឬទ្រព្យសម្បត្តិណាមួយ ដែលកើតឡើងពីការប្រើប្រាស់កម្មវិធីនេះឡើយ។ ជាពិសេសចំពោះមុខងារ Crypto និង Wallet អ្នកប្រើប្រាស់ត្រូវរក្សា Private Key និង Recovery Phrase ដោយប្រុងប្រយ័ត្ន ហើយទទួលខុសត្រូវដោយខ្លួនឯង។</p>
+                            <p className="text-xs text-gray-500 italic">(The software is provided "AS IS" without warranty of any kind. Tomorrow Rich Together is not liable for any data or asset loss arising from its use. For crypto and wallet features in particular, you are responsible for safeguarding your private keys and recovery phrase.)</p>
                         </div>
                     </div>
 
@@ -85,7 +85,7 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
 
                 <div className="pt-4 border-t border-gray-100 text-center">
                     <p className="text-xs text-gray-400">
-                        Community License v1.0 <br/>
+                        Chornor Community License · AGPL-3.0-or-later <br/>
                         Power to the people.
                     </p>
                 </div>
