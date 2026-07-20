@@ -21,6 +21,7 @@ import HowToGuide from './components/HowToGuide';
 import CommunityLicense from './components/CommunityLicense';
 import AdminDashboard from './components/AdminDashboard';
 import CreditsModal from './components/CreditsModal';
+import LandingPage from './components/LandingPage';
 import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users } from 'lucide-react';
 import { CURRENCY_KHR, CURRENCY_USD } from './constants';
 
@@ -44,6 +45,7 @@ const getTabFromPath = (path: string): TabView => {
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const activeUserIdRef = useRef<string | null>(null);
@@ -491,6 +493,9 @@ const App: React.FC = () => {
   }
 
   if (!currentUser) {
+      if (!showLogin) {
+          return <LandingPage onGetStarted={() => setShowLogin(true)} />;
+      }
       return (
         <>
             <LoginScreen onLogin={handleLogin} />
