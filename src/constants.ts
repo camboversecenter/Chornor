@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Tomorrow Rich Together
-import { Category, CryptoAsset, CryptoTransaction, Transaction, Family, Lending, Saving, CommunityPost, PostType, ReactionType } from './types';
+import { Budget, Category, CryptoAsset, CryptoTransaction, Transaction, Family, Lending, Saving, CommunityPost, PostType, ReactionType } from './types';
 
 export const INITIAL_CATEGORIES: Category[] = [
   { _id: 'cat_1', name: 'ប្រាក់ខែ (Salary)', chomnay: false, color: '#10B981', order: 1 },
@@ -144,6 +144,14 @@ export const INITIAL_SAVINGS: Saving[] = [
         savedRiel: 400000,
         createdAt: new Date().toISOString()
     }
+];
+
+// Monthly spending limits for the seeded expense categories (guest/demo mode).
+export const INITIAL_BUDGETS: Budget[] = [
+    { _id: 'budget_food', categoryId: 'cat_2', amount: 300, currency: 'USD', createdAt: new Date().toISOString() },
+    { _id: 'budget_transport', categoryId: 'cat_3', amount: 80, currency: 'USD', createdAt: new Date().toISOString() },
+    { _id: 'budget_utilities', categoryId: 'cat_4', amount: 120, currency: 'USD', createdAt: new Date().toISOString() },
+    { _id: 'budget_entertainment', categoryId: 'cat_5', amount: 200000, currency: 'KHR', createdAt: new Date().toISOString() },
 ];
 
 export const INITIAL_CRYPTO_ASSETS: CryptoAsset[] = [

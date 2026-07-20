@@ -14,6 +14,7 @@ import FamilyManager from './components/FamilyManager';
 import TransactionForm from './components/TransactionForm';
 import LendingManager from './components/LendingManager';
 import SavingManager from './components/SavingManager';
+import BudgetManager from './components/BudgetManager';
 import CryptoManager from './components/CryptoManager';
 import CommunityHub from './components/CommunityHub';
 import LoginScreen from './components/LoginScreen';
@@ -22,7 +23,7 @@ import CommunityLicense from './components/CommunityLicense';
 import AdminDashboard from './components/AdminDashboard';
 import CreditsModal from './components/CreditsModal';
 import LandingPage from './components/LandingPage';
-import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users, Sun, Moon, PieChart } from 'lucide-react';
 import { CURRENCY_KHR, CURRENCY_USD } from './constants';
 import ThemeToggle from './components/ThemeToggle';
 import { useTheme } from './theme';
@@ -32,6 +33,7 @@ const ROUTES: Record<TabView, string> = {
   [TabView.TRANSACTIONS]: '/transactions',
   [TabView.ADD]: '/transactions/new',
   [TabView.CATEGORIES]: '/settings',
+  [TabView.BUDGET]: '/budgets',
   [TabView.LENDING]: '/lending',
   [TabView.SAVING]: '/savings',
   [TabView.CRYPTO]: '/crypto',
@@ -244,6 +246,7 @@ const App: React.FC = () => {
       setShowNotifications(false);
       if (n.type === 'LENDING') navigateTo(TabView.LENDING);
       if (n.type === 'SAVING') navigateTo(TabView.SAVING);
+      if (n.type === 'BUDGET') navigateTo(TabView.BUDGET);
       if (n.type === 'TRANSACTION') navigateTo(TabView.TRANSACTIONS);
       if (n.type === 'EXTERNAL_REQUEST' && n.data) {
           setPendingRequests(n.data);
@@ -323,6 +326,8 @@ const App: React.FC = () => {
              />
           </div>
         );
+      case TabView.BUDGET:
+        return <BudgetManager categories={categories} transactions={transactions} preferredCurrency={preferredCurrency} />;
       case TabView.LENDING:
         return <LendingManager familyMembers={familyMembers} preferredCurrency={preferredCurrency} />;
       case TabView.SAVING:
@@ -558,6 +563,7 @@ const App: React.FC = () => {
               
               <div className="my-4 border-t border-gray-100"></div>
               
+              <NavItem tab={TabView.BUDGET} icon={PieChart} label="ថវិកា (Budgets)" />
               <NavItem tab={TabView.LENDING} icon={Coins} label="កម្ចី (Lending)" />
               <NavItem tab={TabView.SAVING} icon={PiggyBank} label="ការសន្សំ (Saving)" />
               <NavItem tab={TabView.CRYPTO} icon={Bitcoin} label="គ្រីបតូ (Crypto)" />
@@ -611,6 +617,7 @@ const App: React.FC = () => {
                    {activeTab === TabView.DASHBOARD && 'Dashboard Overview'}
                    {activeTab === TabView.TRANSACTIONS && 'Transaction History'}
                    {activeTab === TabView.ADD && 'New Transaction'}
+                   {activeTab === TabView.BUDGET && 'Budgets'}
                    {activeTab === TabView.LENDING && 'Lending Management'}
                    {activeTab === TabView.SAVING && 'Savings Goals'}
                    {activeTab === TabView.CRYPTO && 'Crypto Portfolio'}
@@ -641,9 +648,19 @@ const App: React.FC = () => {
                     <BookOpen size={20} />
                 </button>
 
+                {/* Budgets (Mobile Only - Desktop in Sidebar) */}
+                <div className="md:hidden">
+                    <button
+                        onClick={() => navigateTo(TabView.BUDGET)}
+                        className={`relative p-2 rounded-full hover:bg-gray-100 transition-colors ${activeTab === TabView.BUDGET ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}
+                    >
+                        <PieChart size={24} />
+                    </button>
+                </div>
+
                 {/* Community (Mobile Only - Desktop in Sidebar) */}
                 <div className="md:hidden">
-                    <button 
+                    <button
                         onClick={() => navigateTo(TabView.COMMUNITY)}
                         className={`relative p-2 rounded-full hover:bg-gray-100 transition-colors ${activeTab === TabView.COMMUNITY ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}
                     >
@@ -726,8 +743,9 @@ const App: React.FC = () => {
                                       <div className="flex justify-between items-start mb-1">
                                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                               n.type === 'EXTERNAL_REQUEST' ? 'bg-indigo-100 text-indigo-700' :
-                                              n.type === 'LENDING' ? 'bg-blue-100 text-blue-700' : 
-                                              n.type === 'SAVING' ? 'bg-green-100 text-green-700' : 
+                                              n.type === 'LENDING' ? 'bg-blue-100 text-blue-700' :
+                                              n.type === 'SAVING' ? 'bg-green-100 text-green-700' :
+                                              n.type === 'BUDGET' ? 'bg-purple-100 text-purple-700' :
                                               'bg-orange-100 text-orange-700'}`}>
                                               {n.type}
                                           </span>

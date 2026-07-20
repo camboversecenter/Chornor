@@ -202,6 +202,36 @@ export const checkNotifications = (): AppNotification[] => {
         }
     });
 
+    // --- 4. BUDGET ALERTS ---
+    // For each monthly category budget, warn when this month's spend reaches 80%
+    // (approaching) or exceeds 100% (over budget).
+    const budgets = storage.getBudgets();
+    const categories = storage.getCategories();
+
+    budgets.forEach(b => {
+        if (!b.amount || b.amount <= 0) return;
+        const spent = storage.getMonthlyCategorySpend(b.categoryId, b.currency);
+        const ratio = spent / b.amount;
+        if (ratio < 0.8) return;
+
+        const category = categories.find(c => c._id === b.categoryId);
+        const categoryName = category ? category.name : 'Category';
+        const symbol = b.currency === 'USD' ? CURRENCY_USD : CURRENCY_KHR;
+        const spentStr = `${symbol}${Math.round(spent).toLocaleString()}`;
+        const limitStr = `${symbol}${Math.round(b.amount).toLocaleString()}`;
+        const over = ratio >= 1;
+
+        notifications.push({
+            id: `budget_${b._id}`,
+            type: 'BUDGET',
+            title: over ? 'ចំណាយលើសថវិកា (Over Budget)' : 'ថវិកាជិតអស់ (Budget Almost Used)',
+            message: `${categoryName}: ${spentStr} / ${limitStr} (${Math.round(ratio * 100)}%)`,
+            date: today.toISOString(),
+            isOverdue: over,
+            linkId: b._id
+        });
+    });
+
     // Sort by Date (oldest first/most overdue)
     return notifications.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 };

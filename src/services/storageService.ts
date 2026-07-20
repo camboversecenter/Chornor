@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Tomorrow Rich Together
-import { 
-    Category, Transaction, Family, Currency, Lending, LendingTransaction, 
-    Saving, SavingTransaction, CryptoAsset, CryptoTransaction, 
-    CommunityPost, PostType, ReactionType, UserProfile, 
-    TransactionRequest, APIClient 
+import {
+    Category, Transaction, Family, Currency, Lending, LendingTransaction,
+    Saving, SavingTransaction, Budget, CryptoAsset, CryptoTransaction,
+    CommunityPost, PostType, ReactionType, UserProfile,
+    TransactionRequest, APIClient
 } from '../types';
-import { 
-    INITIAL_CATEGORIES, INITIAL_FAMILY, INITIAL_TRANSACTIONS, 
-    INITIAL_LENDINGS, INITIAL_SAVINGS, INITIAL_CRYPTO_ASSETS, 
-    INITIAL_POSTS, INITIAL_CRYPTO_TRANSACTIONS 
+import {
+    INITIAL_CATEGORIES, INITIAL_FAMILY, INITIAL_TRANSACTIONS,
+    INITIAL_LENDINGS, INITIAL_SAVINGS, INITIAL_BUDGETS, INITIAL_CRYPTO_ASSETS,
+    INITIAL_POSTS, INITIAL_CRYPTO_TRANSACTIONS, EXCHANGE_RATE
 } from '../constants';
 import { supabase } from './supabaseClient';
 import { showAlert } from './alertService';
@@ -25,6 +25,7 @@ interface AppState {
     lendingTransactions: LendingTransaction[];
     savings: Saving[];
     savingTransactions: SavingTransaction[];
+    budgets: Budget[];
     cryptoAssets: CryptoAsset[];
     cryptoTransactions: CryptoTransaction[];
     communityPosts: CommunityPost[];
@@ -47,6 +48,7 @@ let state: AppState = {
     lendingTransactions: [],
     savings: [],
     savingTransactions: [],
+    budgets: [],
     cryptoAssets: [],
     cryptoTransactions: [],
     communityPosts: [],
@@ -229,7 +231,7 @@ export const refreshCloudData = async (seedCategories = false) => {
     if (!isCloudUser() || !currentUserProfile) return;
 
     const [
-        cats, txs, fams, loans, loanTxs, saves, saveTxs, cryptos, cryptoTxs, posts, reqs, clients, whitelist, admins
+        cats, txs, fams, loans, loanTxs, saves, saveTxs, budgets, cryptos, cryptoTxs, posts, reqs, clients, whitelist, admins
     ] = await Promise.all([
         fetchTable<Category>('categories'),
         fetchTable<Transaction>('transactions'),
@@ -238,6 +240,7 @@ export const refreshCloudData = async (seedCategories = false) => {
         fetchTable<LendingTransaction>('lending_transactions'),
         fetchTable<Saving>('savings'),
         fetchTable<SavingTransaction>('saving_transactions'),
+        fetchTable<Budget>('budgets'),
         fetchTable<CryptoAsset>('crypto_assets'),
         fetchTable<CryptoTransaction>('crypto_transactions'),
         fetchTable<CommunityPost>('community_posts', undefined, false),
@@ -272,6 +275,7 @@ export const refreshCloudData = async (seedCategories = false) => {
     state.lendingTransactions = loanTxs;
     state.savings = saves;
     state.savingTransactions = saveTxs;
+    state.budgets = budgets;
     state.cryptoAssets = cryptos;
     state.cryptoTransactions = cryptoTxs;
     state.transactionRequests = reqs;
@@ -301,6 +305,7 @@ export const subscribeToRealtimeUpdates = () => {
         'lending_transactions',
         'savings',
         'saving_transactions',
+        'budgets',
         'crypto_assets',
         'crypto_transactions',
         'community_posts',
@@ -347,6 +352,7 @@ const loadMocks = () => {
     state.familyMembers = [...INITIAL_FAMILY];
     state.lendings = [...INITIAL_LENDINGS];
     state.savings = [...INITIAL_SAVINGS];
+    state.budgets = [...INITIAL_BUDGETS];
     state.cryptoAssets = [...INITIAL_CRYPTO_ASSETS];
     state.cryptoTransactions = [...INITIAL_CRYPTO_TRANSACTIONS];
     state.communityPosts = [...INITIAL_POSTS];
@@ -544,6 +550,42 @@ export const deleteSavingTransaction = async (id: string) => {
         saveToLocal();
         await deleteFromTable('saving_transactions', id);
     }
+};
+
+// Budgets
+export const getBudgets = () => state.budgets;
+export const saveBudget = async (b: Budget) => {
+    const idx = state.budgets.findIndex(i => i._id === b._id);
+    if (idx >= 0) state.budgets[idx] = b;
+    else state.budgets.push(b);
+
+    saveToLocal();
+    await upsertTable('budgets', b);
+};
+export const deleteBudget = async (id: string) => {
+    state.budgets = state.budgets.filter(b => b._id !== id);
+
+    saveToLocal();
+    await deleteFromTable('budgets', id);
+};
+
+// Sum of expenses for a category in the given month (defaults to the current
+// month), normalized to the requested currency using the reference exchange rate.
+export const getMonthlyCategorySpend = (categoryId: string, currency: Currency, ref: Date = new Date()): number => {
+    const month = ref.getMonth();
+    const year = ref.getFullYear();
+    return state.transactions
+        .filter(t => t.categoryId === categoryId)
+        .filter(t => {
+            const d = new Date(t.date);
+            return d.getMonth() === month && d.getFullYear() === year;
+        })
+        .reduce((sum, t) => {
+            if (currency === 'USD') {
+                return sum + (t.currency === 'USD' ? t.amount : t.amount / EXCHANGE_RATE);
+            }
+            return sum + (t.currency === 'KHR' ? t.amount : t.amount * EXCHANGE_RATE);
+        }, 0);
 };
 
 // Crypto
