@@ -39,6 +39,14 @@ chain. The connection flow bridges the user's Supabase identity into Web3:
 4. The client uses that JWT to log into the Thirdweb `inAppWallet`, giving the
    user a wallet address tied to their account.
 
+Activation is a single tap: the user presses **Activate Now** and the wallet
+connects from their existing Google session. There is no separate wallet
+passcode or PIN to create or remember — the wallet's security is bound to the
+Google/Supabase login. (An earlier build gated activation behind a 6-digit
+passcode vault; that step was removed because it added friction without
+protecting the Thirdweb wallet, whose keys are held by Thirdweb and unlocked by
+the JWT, not by the passcode.)
+
 If the user is not whitelisted, the Edge Function returns an "Access Denied"
 response and the UI shows that the wallet feature requires admin approval. See
 the Admin Panel document for how the whitelist is managed.
@@ -72,10 +80,12 @@ Its design highlights:
 - **Signing.** It exposes digest signing and personal message signing, meant to
   be paired with a user confirmation step that a compromised page cannot forge.
 
-At present this module is a self contained library. The Crypto tab uses the
-Thirdweb wallet described above; the self-custodial module provides the
-building blocks for a fully user owned wallet and can be wired in as that
-direction matures.
+At present this module is a self contained library and is **not** wired into
+any screen. The Crypto tab uses the Thirdweb wallet described above; the
+self-custodial module provides the building blocks for a fully user owned
+wallet and can be wired in as that direction matures. It previously supplied
+the passcode/PIN vault on the Crypto activation screen, but that integration
+was removed (see the plan in `docs/plans/remove-zk-passcode-and-fixes.md`).
 
 ## Storage
 

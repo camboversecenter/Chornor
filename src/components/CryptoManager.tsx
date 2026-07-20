@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Tomorrow Rich Together
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { CryptoAsset, CryptoTransaction, Currency, UserProfile } from '../types';
 import * as storage from '../services/storageService';
 import { searchCoins, getCoinPrices } from '../services/coingeckoService';
@@ -13,8 +13,6 @@ import { createThirdwebClient, defineChain, prepareTransaction, toWei } from "th
 import { useConnect, useActiveAccount, useActiveWalletChain, useDisconnect, useActiveWallet, useWalletBalance, useSendTransaction } from "thirdweb/react";
 import { inAppWallet, getWalletBalance } from "thirdweb/wallets";
 import { supabase } from '../services/supabaseClient';
-import { useWalletSigner } from '../../wallet';
-import { createStorageAdapter } from '../../wallet/storage';
 
 // Thirdweb Client Setup
 const client = createThirdwebClient({
@@ -86,9 +84,7 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activationError, setActivationError] = useState<string | null>(null);
   const [isActivating, setIsActivating] = useState(false);
-  const [vaultExists, setVaultExists] = useState<boolean | null>(null);
-  const [walletPin, setWalletPin] = useState('');
-  
+
   // Wallet Asset Management
   const [walletTokens, setWalletTokens] = useState<WalletToken[]>([]);
   const [walletPrices, setWalletPrices] = useState<Record<string, number>>({});
@@ -109,28 +105,6 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
   // Native balance hook for main display fallback
   const { data: nativeBalance, isLoading: isBalanceLoading } = useWalletBalance({ client, chain, address: account?.address });
   const { mutate: sendTx, isPending: isSendingTx, error: sendError, isSuccess: isSendSuccess } = useSendTransaction();
-  const vaultStorage = useMemo(() => createStorageAdapter(), []);
-  const secureWallet = useWalletSigner({
-      storage: vaultStorage,
-      onError: (error) => setActivationError(error.message)
-  });
-
-  useEffect(() => {
-      let cancelled = false;
-      if (!currentUser || currentUser.isTestUser) {
-          setVaultExists(false);
-          return;
-      }
-      setVaultExists(null);
-      vaultStorage.load(currentUser.id)
-          .then(record => {
-              if (!cancelled) setVaultExists(Boolean(record));
-          })
-          .catch(error => {
-              if (!cancelled) setActivationError(error instanceof Error ? error.message : String(error));
-          });
-      return () => { cancelled = true; };
-  }, [currentUser?.id, currentUser?.isTestUser, vaultStorage]);
 
   useEffect(() => {
     refreshList();
@@ -367,48 +341,12 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
       setIsActivating(true);
       setActivationError(null);
 
-      if (!currentUser || vaultExists === null) {
-          if (!silentMode) setActivationError("Secure wallet data is still loading. Please try again.");
+      if (!currentUser) {
+          if (!silentMode) setActivationError("Wallet activation requires a signed-in Google account.");
           setIsActivating(false);
           return;
       }
 
-      // The vault module encrypts wallet secret material in its worker before
-      // atomically persisting it to wallet_vaults for this Supabase user.
-      if (!secureWallet.isUnlocked) {
-          if (!/^\d{6}$/.test(walletPin)) {
-              if (!silentMode) setActivationError("Enter a 6-digit wallet PIN.");
-              setIsActivating(false);
-              return;
-          }
-
-          if (vaultExists) {
-              const unlocked = await secureWallet.unlockWithPin(currentUser.id, walletPin);
-              if (!unlocked) {
-                  if (!silentMode) setActivationError("Could not unlock the wallet. Check your PIN.");
-                  setIsActivating(false);
-                  return;
-              }
-          } else {
-              const created = await secureWallet.createWallet(currentUser.id, walletPin, {
-                  email: currentUser.email,
-                  wordCount: 12
-              });
-              if (!created) {
-                  setIsActivating(false);
-                  return;
-              }
-              setVaultExists(true);
-              if (created.mnemonic) {
-                  await showAlert(
-                      "Save your recovery phrase",
-                      `Write this down now and keep it private:\n\n${created.mnemonic}`,
-                      "warning"
-                  );
-              }
-          }
-      }
-      
       const { data } = await supabase.auth.getSession();
       const accessToken = data.session?.access_token;
 
@@ -474,8 +412,6 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
           disconnect(wallet);
       }
       localStorage.removeItem('chornor_wallet_active');
-      setWalletPin('');
-      void secureWallet.lock();
   };
 
   const handleSendTransaction = () => {
@@ -810,27 +746,6 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
                             <br/><span className="text-xs text-orange-500">តម្រូវឱ្យមានការអនុញ្ញាតពី Admin (Whitelist Required)</span>
                         </p>
 
-                        {!currentUser?.isTestUser && (
-                            <div className="mb-4 text-left">
-                                <label className="mb-1 block text-xs font-bold text-gray-600">
-                                    {vaultExists ? 'Wallet PIN' : 'Create a 6-digit Wallet PIN'}
-                                </label>
-                                <input
-                                    type="password"
-                                    inputMode="numeric"
-                                    autoComplete="off"
-                                    maxLength={6}
-                                    value={walletPin}
-                                    onChange={event => setWalletPin(event.target.value.replace(/\D/g, '').slice(0, 6))}
-                                    placeholder="••••••"
-                                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-center text-lg tracking-[0.5em] outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
-                                />
-                                <p className="mt-1 text-xs text-gray-400">
-                                    {vaultExists === null ? 'Checking secure wallet backup…' : vaultExists ? 'Unlocks your encrypted wallet_vaults backup.' : 'Your wallet will be encrypted before it is saved.'}
-                                </p>
-                            </div>
-                        )}
-                        
                         {activationError === "ACCESS_DENIED" ? (
                             <div className="bg-red-50 p-4 rounded-xl border border-red-100 mb-6 text-left animate-in slide-in-from-top-2">
                                 <div className="flex items-center gap-2 mb-2 text-red-700 font-bold">
@@ -857,7 +772,7 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
 
                         <button 
                             onClick={() => handleActivateWallet(false)}
-                            disabled={isActivating || vaultExists === null || activationError === "ACCESS_DENIED"}
+                            disabled={isActivating || activationError === "ACCESS_DENIED"}
                             className="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 disabled:bg-gray-300 disabled:cursor-not-allowed"
                         >
                             {isActivating ? <Loader2 className="animate-spin" /> : <ShieldCheck size={18} />}
