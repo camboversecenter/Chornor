@@ -18,11 +18,12 @@ const getInitialTheme = (): Theme => {
   if (typeof window === 'undefined') return 'light';
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
+    if (stored === 'dark') return 'dark';
   } catch {
     /* ignore storage errors */
   }
-  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  // Default to light for everyone; users opt in to dark via the toggle.
+  return 'light';
 };
 
 const applyTheme = (theme: Theme) => {

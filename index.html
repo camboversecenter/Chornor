@@ -32,14 +32,12 @@
     <meta name="twitter:image" content="https://chornors.camboverse.world/og-image.png" />
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script>
-      // Apply the saved or system theme before first paint to avoid a flash.
+      // Default to light; apply dark before first paint only if the user chose it.
       (function () {
         try {
-          var t = localStorage.getItem('chornor_theme');
-          if (t !== 'light' && t !== 'dark') {
-            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          if (localStorage.getItem('chornor_theme') === 'dark') {
+            document.documentElement.classList.add('dark');
           }
-          if (t === 'dark') document.documentElement.classList.add('dark');
         } catch (e) {}
       })();
     </script>
