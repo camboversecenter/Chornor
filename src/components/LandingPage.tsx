@@ -9,6 +9,7 @@ import {
 import CommunityLicense from './CommunityLicense';
 import CreditsModal from './CreditsModal';
 import HowToGuide from './HowToGuide';
+import ThemeToggle from './ThemeToggle';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -56,6 +57,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <button onClick={() => scrollTo('opensource')} className="hover:text-indigo-600 transition-colors">Open Source</button>
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-100" />
             <button
               onClick={onGetStarted}
               className="hidden sm:inline-flex items-center gap-1.5 bg-indigo-600 text-white font-semibold text-sm px-4 py-2 rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"

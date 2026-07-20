@@ -22,8 +22,10 @@ import CommunityLicense from './components/CommunityLicense';
 import AdminDashboard from './components/AdminDashboard';
 import CreditsModal from './components/CreditsModal';
 import LandingPage from './components/LandingPage';
-import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users } from 'lucide-react';
+import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users, Sun, Moon } from 'lucide-react';
 import { CURRENCY_KHR, CURRENCY_USD } from './constants';
+import ThemeToggle from './components/ThemeToggle';
+import { useTheme } from './theme';
 
 const ROUTES: Record<TabView, string> = {
   [TabView.DASHBOARD]: '/',
@@ -46,6 +48,7 @@ const getTabFromPath = (path: string): TabView => {
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
   const [showLogin, setShowLogin] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const activeUserIdRef = useRef<string | null>(null);
@@ -387,6 +390,26 @@ const App: React.FC = () => {
                                  </div>
                              </div>
 
+                             <div className="mb-6">
+                                 <p className="text-sm font-medium text-gray-700 mb-2">រូបរាង (Appearance)</p>
+                                 <div className="flex gap-3">
+                                     <button
+                                        onClick={() => setTheme('light')}
+                                        className={`flex-1 p-3 rounded-xl border flex items-center justify-center gap-2 ${theme === 'light' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}
+                                     >
+                                         <Sun size={18} />
+                                         <span className="font-bold">ភ្លឺ (Light)</span>
+                                     </button>
+                                     <button
+                                        onClick={() => setTheme('dark')}
+                                        className={`flex-1 p-3 rounded-xl border flex items-center justify-center gap-2 ${theme === 'dark' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}
+                                     >
+                                         <Moon size={18} />
+                                         <span className="font-bold">ងងឹត (Dark)</span>
+                                     </button>
+                                 </div>
+                             </div>
+
                              {/* Demo Button for External Request (Only if Local/Test) */}
                              {currentUser?.isTestUser && (
                                  <button 
@@ -628,8 +651,11 @@ const App: React.FC = () => {
                     </button>
                 </div>
 
+                {/* Theme Toggle */}
+                <ThemeToggle className="p-2 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-100" size={20} />
+
                 {/* Notification Bell */}
-                <button 
+                <button
                     onClick={() => setShowNotifications(true)}
                     className="relative p-2 rounded-full hover:bg-gray-100 transition-colors bg-white shadow-sm border border-gray-100"
                 >

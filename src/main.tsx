@@ -4,6 +4,7 @@ import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {ThirdwebProvider} from 'thirdweb/react';
 import App from './App.tsx';
+import {ThemeProvider} from './theme';
 import './index.css';
 
 const rootElement = document.getElementById('root');
@@ -14,8 +15,10 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <ThirdwebProvider>
-      <App />
-    </ThirdwebProvider>
+    <ThemeProvider>
+      <ThirdwebProvider>
+        <App />
+      </ThirdwebProvider>
+    </ThemeProvider>
   </StrictMode>,
 );

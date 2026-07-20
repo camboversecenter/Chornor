@@ -8,6 +8,7 @@ import { Wallet, ShieldCheck, AlertTriangle, X, FileText, WifiOff, Key, Code, Co
 import HowToGuide from './HowToGuide';
 import CommunityLicense from './CommunityLicense';
 import CreditsModal from './CreditsModal';
+import ThemeToggle from './ThemeToggle';
 
 interface LoginScreenProps {
   onLogin: (user: UserProfile) => void;
@@ -48,6 +49,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
 
   return (
     <div className="min-h-screen bg-indigo-600 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+       <ThemeToggle className="absolute top-4 right-4 z-20 p-2.5 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 border border-white/20" />
        {/* Background Decoration */}
        <div className="absolute top-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2"></div>
        <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl translate-x-1/3 translate-y-1/3"></div>
