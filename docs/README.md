@@ -24,6 +24,10 @@ does, who can use it, the data it stores, and how it works under the hood.
 - [Architecture overview](./architecture.md)
 - [User roles and access](./user-roles.md)
 
+### Operations
+
+- [Migrating to a new Supabase project](./supabase-migration.md)
+
 ### Features
 
 - [Dashboard](./features/dashboard.md)
