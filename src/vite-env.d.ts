@@ -3,8 +3,11 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly VITE_GEMINI_API_KEY?: string;
-  readonly GEMINI_API_KEY?: string;
+  // Gemini is proxied server-side (see server.ts /api/gemini); no client key.
+  readonly VITE_SUPABASE_URL?: string;
+  readonly VITE_SUPABASE_ANON_KEY?: string;
+  readonly VITE_COINGECKO_API_KEY?: string;
+  readonly VITE_MORALIS_API_KEY?: string;
 }
 
 interface ImportMeta {

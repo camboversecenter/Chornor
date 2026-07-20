@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Tomorrow Rich Together
 const BASE_URL = 'https://api.coingecko.com/api/v3';
-const API_KEY = 'CG-U6KfueDjHDXPpg59tXTi6Ufr';
+// Optional CoinGecko demo key. Configured via env, not hardcoded. When empty,
+// the service uses the keyless public endpoint below.
+const API_KEY = import.meta.env.VITE_COINGECKO_API_KEY || '';
 
 const getOptions = () => ({
   method: 'GET',
@@ -55,10 +57,10 @@ export const getCoinPrices = async (ids: string[]): Promise<Record<string, { usd
   };
 
   try {
-      // 1. Try with API Key
-      return await fetchWithKey();
+      // 1. Use the API key if configured, otherwise the public endpoint
+      return API_KEY ? await fetchWithKey() : await fetchPublic();
   } catch (error) {
-      console.warn("CoinGecko API Key failed, falling back to public endpoint...", error);
+      console.warn("CoinGecko primary fetch failed, falling back to public endpoint...", error);
       try {
           // 2. Fallback to Public (No Key)
           return await fetchPublic();

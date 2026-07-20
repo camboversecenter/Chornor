@@ -1,20 +1,35 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Tomorrow Rich Together
-import { GoogleGenAI, Type } from "@google/genai";
+import { Type } from "@google/genai";
 import { Transaction, Category, Lending, Saving, CryptoAsset, TransactionItem, AppNotification, PostType, CommunityPost } from "../types";
 import * as storage from "./storageService";
 
-const getGeminiApiKey = () =>
-  import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY || '';
+// All Gemini calls are proxied through the app server (POST /api/gemini) so the
+// API key stays server-side and is never shipped to the browser bundle. The
+// request shape mirrors GoogleGenAI.models.generateContent({ model, contents, config }).
+interface GeminiRequest {
+  model: string;
+  contents: any;
+  config?: any;
+}
 
-const getAI = () => {
-  const apiKey = getGeminiApiKey();
-
-  if (!apiKey) {
-    throw new Error('Gemini API key is missing. Add VITE_GEMINI_API_KEY or GEMINI_API_KEY to .env and restart the dev server.');
+const callGemini = async (req: GeminiRequest): Promise<{ text: string }> => {
+  const res = await fetch('/api/gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req),
+  });
+  if (!res.ok) {
+    let message = `Gemini request failed (${res.status})`;
+    try {
+      const err = await res.json();
+      if (err?.error) message = err.error;
+    } catch {
+      /* ignore body parse errors */
+    }
+    throw new Error(message);
   }
-
-  return new GoogleGenAI({ apiKey });
+  return res.json();
 };
 
 // Helper to convert File to Base64 for Gemini
@@ -125,7 +140,7 @@ export const getFinancialAdvice = async (
       Keep it concise (under 200 words total).
     `;
 
-    const response = await getAI().models.generateContent({
+    const response = await callGemini({
       model: model,
       contents: prompt,
     });
@@ -148,7 +163,7 @@ export const suggestCategory = async (
           Return ONLY the exact name of the category. If no match fits well, return "null".
         `;
 
-        const response = await getAI().models.generateContent({
+        const response = await callGemini({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
@@ -203,7 +218,7 @@ export const parseReceipt = async (imageFile: File, categories: Category[]): Pro
            Only return the JSON object, no markdown formatting.
         `;
 
-        const response = await getAI().models.generateContent({
+        const response = await callGemini({
             model: 'gemini-2.5-flash',
             contents: {
                 parts: [
@@ -251,7 +266,7 @@ export const extractWalletAddress = async (imageFile: File): Promise<string | nu
             If no address found, return "null".
         `;
 
-        const response = await getAI().models.generateContent({
+        const response = await callGemini({
             model: 'gemini-2.5-flash',
             contents: {
                 parts: [
@@ -305,7 +320,7 @@ export const validateCommunityPost = async (content: string, type: PostType): Pr
             }
         `;
 
-        const response = await getAI().models.generateContent({
+        const response = await callGemini({
             model: 'gemini-2.5-flash',
             contents: prompt,
             config: {
@@ -362,7 +377,7 @@ export const generateAndSaveDailyPosts = async (): Promise<void> => {
                 - Do NOT start with "Here is a tip". Just state the tip directly.
             `;
 
-            const response = await getAI().models.generateContent({
+            const response = await callGemini({
                 model,
                 contents: prompt
             });
