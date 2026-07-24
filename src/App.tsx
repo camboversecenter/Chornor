@@ -316,9 +316,10 @@ const App: React.FC = () => {
       case TabView.ADD:
         return (
           <div className="max-w-2xl mx-auto">
-             <TransactionForm 
+             <TransactionForm
                 categories={categories}
                 familyMembers={familyMembers}
+                transactions={transactions}
                 defaultCurrency={preferredCurrency}
                 initialData={editingTransaction}
                 onSave={handleSaveTransaction} 
