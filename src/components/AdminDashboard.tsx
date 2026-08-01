@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: Apache-2.0
 // Copyright (C) 2026 Tomorrow Rich Together
 import React, { useEffect, useState } from 'react';
 import { ShieldCheck, Users, Mail, Plus, Trash2, RefreshCw, Key, Wallet, AlertCircle, Settings, ToggleLeft, ToggleRight, Database, Server, Copy, Loader2 } from 'lucide-react';

@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: Apache-2.0
 // Copyright (C) 2026 Tomorrow Rich Together
 import React from 'react';
 import { X, ShieldCheck, Heart, Users, Code2, AlertTriangle } from 'lucide-react';
@@ -64,8 +64,8 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
                         </div>
                         <div>
                             <h3 className="font-bold text-gray-900 mb-1">៣. កូដបើកចំហ និងអាជ្ញាប័ណ្ណ (Open Source & License)</h3>
-                            <p className="mb-2">កូដត្រូវបានបើកចំហជាសាធារណៈ (Open Source) ក្រោមអាជ្ញាប័ណ្ណ GNU AGPL v3.0 ឬ ក្រោយៗ។ អ្នករាល់គ្នាមានសិទ្ធិ ប្រើប្រាស់ សិក្សា ចែករំលែក និងកែប្រែ។ ប្រសិនបើអ្នកដាក់កំណែដែលបានកែប្រែឱ្យដំណើរការជាសេវាកម្មតាមបណ្តាញ (Hosted Service) អ្នកត្រូវចែករំលែកកូដដែលបានកែប្រែនោះជូនអ្នកប្រើប្រាស់ផងដែរ។</p>
-                            <p className="text-xs text-gray-500 italic">(The source code is open under the GNU AGPL v3.0 or later. You may use, study, share, and modify it. If you run a modified version as a hosted network service, you must also make your modified source available to its users.)</p>
+                            <p className="mb-2">កូដត្រូវបានបើកចំហជាសាធារណៈ (Open Source) ក្រោមអាជ្ញាប័ណ្ណ Apache License 2.0។ អ្នករាល់គ្នាមានសិទ្ធិ ប្រើប្រាស់ សិក្សា ចែករំលែក និងកែប្រែ (រួមទាំងក្នុងគម្រោងពាណិជ្ជកម្ម) ដរាបណារក្សាទុកនូវការជូនដំណឹងអំពីអាជ្ញាប័ណ្ណ និងកម្មសិទ្ធិ។</p>
+                            <p className="text-xs text-gray-500 italic">(The source code is open under the Apache License 2.0, a permissive license. You may use, study, share, and modify it, including in commercial products, as long as you keep the license and copyright notices.)</p>
                         </div>
                     </div>
 
@@ -85,7 +85,7 @@ const CommunityLicense: React.FC<CommunityLicenseProps> = ({ onClose }) => {
 
                 <div className="pt-4 border-t border-gray-100 text-center">
                     <p className="text-xs text-gray-400">
-                        Chornor Community License · AGPL-3.0-or-later <br/>
+                        Chornor Community License · Apache-2.0 <br/>
                         Power to the people.
                     </p>
                 </div>

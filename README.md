@@ -1,6 +1,6 @@
 # Chornor (ចំណូលចំណាយ)
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](./LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 **Chornor** is a dual-currency personal finance web app built for the Cambodian
 market. The name (*chomnool chomnay*) means "income & expenses" in Khmer, and
@@ -113,14 +113,14 @@ server), `npm start` (run the production bundle), and `npm run lint`
 ## License
 
 Chornor is a community project and free to use. The source code is licensed
-under the **GNU Affero General Public License v3.0 or later** (AGPL-3.0-or-later).
-The full text is in [`LICENSE`](./LICENSE).
+under the **Apache License, Version 2.0** (Apache-2.0). The full text is in
+[`LICENSE`](./LICENSE).
 
-In short, you are free to use, study, share, and modify the app. Because AGPL is
-a network copyleft license, if you run a modified version as a hosted service you
-must also make your modified source available to its users. This keeps Chornor
-open for the community even when it is offered over a network.
+Apache-2.0 is a permissive license: you are free to use, modify, and distribute
+the app, including in commercial or closed-source products, as long as you keep
+the license and copyright notices and note significant changes. It also includes
+an express patent grant from contributors.
 
 The project is sustained through community support, donations, grants, and
-training, not through proprietary licensing.
+training.
 </content>

@@ -8,8 +8,7 @@ while signed-in users get cloud sync through Supabase.
 
 Chornor is a community project owned by the student team Tomorrow Rich Together
 and incubated by the CamboVerse Center, which is located at the National
-University of Management. It is free to use and licensed under
-AGPL-3.0-or-later.
+University of Management. It is free to use and licensed under Apache-2.0.
 
 ## How to read these docs
 

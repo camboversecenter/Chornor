@@ -11,7 +11,7 @@ for guests via `localStorage` and syncs to Supabase for signed-in users.
 
 - **Owned by the student team Tomorrow Rich Together. Incubated by the CamboVerse
   Center, located at the National University of Management.**
-- **License:** AGPL-3.0-or-later. It is a free community project funded by
+- **License:** Apache-2.0. It is a free community project funded by
   support, donations, grants, and training.
 - **Detailed docs:** see the `docs/` folder (architecture, user roles, and a
   document per feature). Read those before making non-trivial changes.
@@ -84,12 +84,11 @@ app.
 
 ## Licensing
 
-- The project is AGPL-3.0-or-later. Keep new dependencies compatible (current
-  dependencies are MIT or Apache-2.0).
+- The project is Apache-2.0 (permissive). A NOTICE file records the copyright.
 - Copyright is held by the student team Tomorrow Rich Together. Source files
-  carry a short SPDX/AGPL header, and new files must include it using the comment
+  carry a short SPDX header, and new files must include it using the comment
   style that fits the file type:
-  `SPDX-License-Identifier: AGPL-3.0-or-later` and
+  `SPDX-License-Identifier: Apache-2.0` and
   `Copyright (C) <year> Tomorrow Rich Together`.
 
 ## Git workflow

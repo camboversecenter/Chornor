@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: Apache-2.0
 // Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState } from 'react';
 import { X, BookOpen, CheckCircle, Wallet, Camera, Brain, Coins, PiggyBank, Bitcoin, Globe, ShieldCheck, User, Wifi, WifiOff, Code, DownloadCloud } from 'lucide-react';

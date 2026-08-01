@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-License-Identifier: Apache-2.0
 // Copyright (C) 2026 Tomorrow Rich Together
 const BASE_URL = 'https://api.coingecko.com/api/v3';
 // Optional CoinGecko demo key. Configured via env, not hardcoded. When empty,
