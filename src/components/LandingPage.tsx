@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import {
   Wallet, LayoutDashboard, ScanLine, Coins, PiggyBank, Bitcoin, Globe,
   Sparkles, ShieldCheck, Bell, ArrowRight, Check, WifiOff, Languages,
-  HeartHandshake, FileText, Code2, Menu
+  HeartHandshake, FileText, Code2, Menu, Send
 } from 'lucide-react';
 import CommunityLicense from './CommunityLicense';
 import CreditsModal from './CreditsModal';
@@ -13,6 +13,7 @@ import ThemeToggle from './ThemeToggle';
 
 interface LandingPageProps {
   onGetStarted: () => void;
+  onAbout: () => void;
 }
 
 const FEATURES = [
@@ -31,7 +32,7 @@ const WHY = [
   { icon: HeartHandshake, title: 'Community-owned', desc: 'A free, open-source project built by students, for everyone.' },
 ];
 
-const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
   const [showLicense, setShowLicense] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
@@ -55,6 +56,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <button onClick={() => scrollTo('features')} className="hover:text-indigo-600 transition-colors">Features</button>
             <button onClick={() => scrollTo('why')} className="hover:text-indigo-600 transition-colors">Why Chornor</button>
             <button onClick={() => scrollTo('opensource')} className="hover:text-indigo-600 transition-colors">Open Source</button>
+            <button onClick={onAbout} className="hover:text-indigo-600 transition-colors">About Us</button>
           </nav>
           <div className="flex items-center gap-2">
             <ThemeToggle className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-100" />
@@ -74,6 +76,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <button onClick={() => scrollTo('features')} className="text-left py-1">Features</button>
             <button onClick={() => scrollTo('why')} className="text-left py-1">Why Chornor</button>
             <button onClick={() => scrollTo('opensource')} className="text-left py-1">Open Source</button>
+            <button onClick={onAbout} className="text-left py-1">About Us</button>
             <button onClick={onGetStarted} className="mt-1 inline-flex items-center justify-center gap-1.5 bg-indigo-600 text-white font-semibold px-4 py-2.5 rounded-xl">
               ចាប់ផ្ដើម (Get Started) <ArrowRight size={16} />
             </button>
@@ -289,6 +292,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </div>
               <div className="flex flex-col gap-2">
                 <span className="text-white font-semibold mb-1">Project</span>
+                <button onClick={onAbout} className="text-left hover:text-white transition-colors">About Us</button>
+                <a href="https://t.me/+VnJNjvNbXpQ3MWM1" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Send size={13} /> Telegram</a>
                 <button onClick={() => setShowLicense(true)} className="text-left hover:text-white transition-colors">License (Apache-2.0)</button>
                 <button onClick={() => setShowCredits(true)} className="text-left hover:text-white transition-colors">Credits</button>
               </div>
