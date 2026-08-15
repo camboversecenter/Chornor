@@ -103,12 +103,19 @@ server), `npm start` (run the production bundle), and `npm run lint`
 
 ## Notes
 
-- The codebase started from a "Fitness & Heart Rate Tracker" prototype, so a few
-  fitness remnants remain (for example the fitness fields on `UserProfile` and
-  some unused helper components). The live finance features live in
-  `src/services/geminiService.ts` and the feature components.
+- The codebase started from a "Fitness & Heart Rate Tracker" prototype. A few
+  fitness fields on `UserProfile` remain but are unused by the finance features,
+  which live in `src/services/geminiService.ts` and the feature components.
 - Further technical detail is in `src/doc/TECHNICAL_SPEC.md` and
-  `src/doc/API_REFERENCE.md`.
+  `src/doc/API_REFERENCE.md`, and in the [`docs/`](./docs) folder.
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for
+setup and workflow, follow the [Code of Conduct](./CODE_OF_CONDUCT.md), and
+report security issues privately per [SECURITY.md](./SECURITY.md).
+
+Join the community on [Telegram](https://t.me/+VnJNjvNbXpQ3MWM1).
 
 ## License
 

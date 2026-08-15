@@ -1,9 +1,30 @@
 {
-  "name": "react-example",
+  "name": "chornor",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
+  "description": "Chornor (ចំណូលចំណាយ) is a free, open-source, dual-currency personal finance app for Cambodia: budgeting, lending, savings, crypto, and an AI assistant.",
   "license": "Apache-2.0",
   "type": "module",
+  "author": "Tomorrow Rich Together",
+  "homepage": "https://chornors.camboverse.world",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/camboversecenter/Chornor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/camboversecenter/Chornor/issues"
+  },
+  "keywords": [
+    "cambodia",
+    "personal-finance",
+    "budgeting",
+    "khmer",
+    "riel",
+    "fintech",
+    "react",
+    "supabase",
+    "open-source"
+  ],
   "engines": {
     "node": ">=20.19.0"
   },
@@ -29,7 +50,7 @@
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
     "hash-wasm": "^4.12.0",
-    "jwt-decode": "latest",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",

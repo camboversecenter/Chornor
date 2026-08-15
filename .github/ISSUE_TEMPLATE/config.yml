@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Community chat (Telegram)
+    url: https://t.me/+VnJNjvNbXpQ3MWM1
+    about: Ask questions and get help from the Chornor community.
+  - name: Report a security vulnerability
+    url: https://github.com/camboversecenter/Chornor/blob/main/SECURITY.md
+    about: Please report security issues privately, not as a public issue.
