@@ -2,8 +2,7 @@
 // Copyright (C) 2026 Tomorrow Rich Together
 import React from 'react';
 import {
-  ArrowLeft, ArrowRight, Send, GraduationCap, Sparkles, Code2,
-  ExternalLink, Users, HeartHandshake,
+  ArrowLeft, ArrowRight, Send, ExternalLink, Users, HeartHandshake,
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
@@ -17,6 +16,7 @@ const TELEGRAM_URL = 'https://t.me/+VnJNjvNbXpQ3MWM1';
 // Team photos live in public/. Names are placeholders (to be renamed later);
 // every role is "Member" per the current team listing.
 const TEAM_IMAGES = [
+  'image1.jpg',
   'DSC_1926 copy.jpg',
   'IMG_20260810_123458_582.jpg',
   'IMG_20260815_102936.jpg',
@@ -38,8 +38,7 @@ const TEAM = TEAM_IMAGES.map((file, i) => ({
 
 const PARTNERS = [
   {
-    icon: GraduationCap,
-    color: 'text-indigo-600 bg-indigo-50',
+    logo: '/num.png',
     name: 'National University of Management',
     role: 'សាកលវិទ្យាល័យម្ចាស់ផ្ទះ (Host University)',
     desc: 'Chornor is hosted at the National University of Management in Phnom Penh.',
@@ -47,8 +46,7 @@ const PARTNERS = [
     label: 'num.edu.kh',
   },
   {
-    icon: Sparkles,
-    color: 'text-emerald-600 bg-emerald-50',
+    logo: '/camboverse.png',
     name: 'CamboVerse Center',
     role: 'អង្គភាពបណ្តុះ (Incubator)',
     desc: 'Chornor is incubated by the CamboVerse Center at NUM, which supports Cambodian technology projects.',
@@ -56,8 +54,7 @@ const PARTNERS = [
     label: 'camboverse.world',
   },
   {
-    icon: Code2,
-    color: 'text-rose-600 bg-rose-50',
+    logo: '/e-khmer.png',
     name: 'E-KHMER Technology Co., Ltd.',
     role: 'ដៃគូបច្ចេកវិទ្យា (Technology Partner)',
     desc: 'E-KHMER contributes engineering and technical support to the platform.',
@@ -148,8 +145,11 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack, onGetStarted }) => {
           <div className="grid md:grid-cols-3 gap-5">
             {PARTNERS.map((p) => (
               <div key={p.name} className="flex flex-col items-center text-center p-8 rounded-2xl bg-white border border-gray-100 hover:shadow-lg transition-all">
-                <div className={`w-20 h-20 rounded-2xl flex items-center justify-center mb-5 ${p.color}`}>
-                  <p.icon size={38} />
+                <div
+                  className="h-20 w-full max-w-[220px] mb-5 px-5 flex items-center justify-center rounded-xl border border-gray-200 shadow-sm"
+                  style={{ backgroundColor: '#ffffff' }}
+                >
+                  <img src={p.logo} alt={p.name} loading="lazy" className="max-h-14 max-w-full object-contain" />
                 </div>
                 <h3 className="font-bold text-lg text-gray-900 leading-tight">{p.name}</h3>
                 <p className="mt-1.5 text-sm font-semibold text-indigo-500">{p.role}</p>
