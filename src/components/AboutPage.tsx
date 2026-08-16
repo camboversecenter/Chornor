@@ -21,9 +21,9 @@ const TEAM_IMAGES = [
   'IMG_20260810_123458_582.jpg',
   'IMG_20260815_102936.jpg',
   'IMG_20260815_105706_349.jpg',
-  'IMG_3623.PNG',
+  'IMG_3623.jpg',
   'IMG_4001.JPG',
-  'IMG_4534.PNG',
+  'IMG_4534.jpg',
   'IMG_6846.JPG',
   'IMG_9244.JPG',
   'IMG_9393.JPG',
@@ -121,7 +121,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack, onGetStarted }) => {
                     src={m.img}
                     alt={m.name}
                     loading="lazy"
-                    className="w-full h-full rounded-full object-cover object-[center_top] border-4 border-white bg-gray-100"
+                    className="w-full h-full rounded-full object-cover object-[center_20%] border-4 border-white bg-gray-100"
                   />
                 </div>
               </div>
