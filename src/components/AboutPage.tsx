@@ -13,25 +13,25 @@ interface AboutPageProps {
 
 const TELEGRAM_URL = 'https://t.me/+VnJNjvNbXpQ3MWM1';
 
-// Team photos live in public/. Names are placeholders (to be renamed later);
-// every role is "Member" per the current team listing.
-const TEAM_IMAGES = [
-  'image1.jpg',
-  'DSC_1926 copy.jpg',
-  'IMG_20260810_123458_582.jpg',
-  'IMG_20260815_102936.jpg',
-  'IMG_20260815_105706_349.jpg',
-  'IMG_3623.jpg',
-  'IMG_4001.JPG',
-  'IMG_4534.jpg',
-  'IMG_6846.JPG',
-  'IMG_9244.JPG',
-  'IMG_9393.JPG',
-  'MYXJ_20250925141435597_save.jpg',
+// Team photos live in public/, paired with the name each member submitted.
+// Every role is "Member" per the current team listing.
+const TEAM_MEMBERS: [name: string, file: string][] = [
+  ['YIN Sovannsak', 'image1.jpg'],
+  ['Chhorn Molika', 'DSC_1926 copy.jpg'],
+  ['Hour Kanika', 'IMG_20260810_123458_582.jpg'],
+  ['Bunn Menghak', 'IMG_20260815_102936.jpg'],
+  ['Tep Chanreaksmey', 'IMG_20260815_105706_349.jpg'],
+  ['Ith Chanreaksmey', 'IMG_3623.jpg'],
+  ['Bo Kosmak', 'IMG_4001.JPG'],
+  ['Neang Retrithykar', 'IMG_4534.jpg'],
+  ['Navuth Yada', 'IMG_6846.JPG'],
+  ['MoeunRithi Sreylompong', 'IMG_9244.JPG'],
+  ['Sok Malis', 'IMG_9393.JPG'],
+  ['Orn Sivechorng', 'MYXJ_20250925141435597_save.jpg'],
 ];
 
-const TEAM = TEAM_IMAGES.map((file, i) => ({
-  name: `Member ${String(i + 1).padStart(2, '0')}`,
+const TEAM = TEAM_MEMBERS.map(([name, file]) => ({
+  name,
   role: 'Member',
   img: '/' + encodeURIComponent(file),
 }));
