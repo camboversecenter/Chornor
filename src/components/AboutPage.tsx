@@ -58,7 +58,7 @@ const PARTNERS = [
     name: 'E-KHMER Technology Co., Ltd.',
     role: 'ដៃគូបច្ចេកវិទ្យា (Technology Partner)',
     desc: 'E-KHMER contributes engineering and technical support to the platform.',
-    url: 'https://e-khmer.com',
+    url: 'https://www.e-khmer.com',
     label: 'e-khmer.com',
   },
 ];
