@@ -38,6 +38,21 @@ disclosure.
   If you find one in the repository or its history, report it privately so it can
   be rotated.
 
+## Dependency audit posture
+
+We keep the dependency tree free of known **high** and **critical** advisories.
+Where a fix lives in a transitive package, we pin the patched version through the
+`overrides` field in `package.json` (currently `axios`, `hono`, `js-yaml`,
+`nanoid`, `postcss`, and `ws`).
+
+A few **moderate** advisories remain in the optional Web3 wallet connector tree
+(MetaMask SDK, Solana, and their `uuid` dependency). Their only published fix is
+a breaking downgrade of `@solana/web3.js`, which would remove wallet
+functionality, so we accept them for now. The `uuid` advisory
+(GHSA-w5hq-g745-h8pq) only triggers when `uuid` is called with a caller-supplied
+`buf` argument, a code path Chornor never uses. Run `npm audit` to review the
+current list.
+
 ## Supported versions
 
 Chornor is in active beta. Security fixes are applied to the latest `main`.
