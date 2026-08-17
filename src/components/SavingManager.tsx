@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect } from 'react';
 import { Saving, SavingTransaction, Family, Currency } from '../types';
 import * as storage from '../services/storageService';

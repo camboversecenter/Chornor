@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: Apache-2.0
+-- Copyright (C) 2026 Tomorrow Rich Together
 -- PRAK wallet vault storage.
 --
 -- Stores only CIPHERTEXT and public identifiers. The server never sees the

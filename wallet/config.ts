@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/config.ts
 import { base, baseSepolia } from 'viem/chains';
 import type { Argon2Params } from './messages';

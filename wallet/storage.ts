@@ -1,4 +1,6 @@
-import { supabase as rawSupabase } from "../services/supabase";
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
+import { supabase as rawSupabase } from "../src/services/supabaseClient";
 import { WalletStorageAdapter } from "./useWalletSigner";
 import { WalletVaultRecord } from "./messages";
 

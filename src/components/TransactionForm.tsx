@@ -1,21 +1,23 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Category, Transaction, Family, Currency, ReminderFrequency, TransactionItem } from '../types';
 import { suggestCategory, parseReceipt } from '../services/geminiService';
 import { showAlert } from '../services/alertService';
-import { Sparkles, Repeat, Users, Plus, Trash2, ShoppingBag, Camera, Loader2, ScanLine, Edit2, Check, X, Calendar, Tag, Image as ImageIcon } from 'lucide-react';
+import { Sparkles, Repeat, Users, Plus, Trash2, ShoppingBag, Camera, Loader2, ScanLine, Edit2, Check, X, Calendar, Tag, Image as ImageIcon, Search, History } from 'lucide-react';
 import { CURRENCY_USD, CURRENCY_KHR } from '../constants';
 
 interface TransactionFormProps {
   categories: Category[];
   familyMembers: Family[];
+  transactions?: Transaction[];
   defaultCurrency: Currency;
   initialData?: Transaction | null;
   onSave: (t: Transaction) => void;
   onCancel: () => void;
 }
 
-const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMembers, defaultCurrency, initialData, onSave, onCancel }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMembers, transactions = [], defaultCurrency, initialData, onSave, onCancel }) => {
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState<Currency>(defaultCurrency);
   const [description, setDescription] = useState('');
@@ -33,11 +35,19 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
   
   const [reminder, setReminder] = useState<ReminderFrequency>('NONE');
   const [isSuggesting, setIsSuggesting] = useState(false);
-  
+
+  // Description autocomplete dropdown state
+  const [showDescList, setShowDescList] = useState(false);
+  const [descHighlight, setDescHighlight] = useState(-1);
+  const descBoxRef = useRef<HTMLDivElement>(null);
+
   // Scanning State
   const [isScanning, setIsScanning] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
 
   // Item/Receipt State
   const [items, setItems] = useState<TransactionItem[]>([]);
@@ -86,6 +96,24 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
         setAmount(total.toFixed(2));
     }
   }, [items]);
+
+  useEffect(() => {
+    return () => {
+      cameraStreamRef.current?.getTracks().forEach(track => track.stop());
+    };
+  }, []);
+
+  // Close the description suggestion dropdown when clicking outside of it
+  useEffect(() => {
+    if (!showDescList) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (descBoxRef.current && !descBoxRef.current.contains(e.target as Node)) {
+        setShowDescList(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showDescList]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,14 +198,15 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
       }
   };
 
-  const handleDescriptionBlur = async () => {
-    if (!description || description.length < 3) return;
+  const handleDescriptionBlur = async (value?: string) => {
+    const text = typeof value === 'string' ? value : description;
+    if (!text || text.length < 3) return;
     
     // Only suggest if not already categorized via scan to avoid overwriting user intent too aggressively
     if (isSuggesting) return;
 
     setIsSuggesting(true);
-    const suggestedId = await suggestCategory(description, categories);
+    const suggestedId = await suggestCategory(text, categories);
     if (suggestedId) {
         setCategoryId(suggestedId);
     }
@@ -187,7 +216,72 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      await scanReceiptFile(file);
 
+      // Reset input
+      if (cameraInputRef.current) cameraInputRef.current.value = '';
+      if (galleryInputRef.current) galleryInputRef.current.value = '';
+  };
+
+  const closeCamera = () => {
+      cameraStreamRef.current?.getTracks().forEach(track => track.stop());
+      cameraStreamRef.current = null;
+      if (videoRef.current) videoRef.current.srcObject = null;
+      setIsCameraOpen(false);
+  };
+
+  const openCamera = async () => {
+      if (!navigator.mediaDevices?.getUserMedia) {
+          // Older mobile browsers can still open their native camera through this input.
+          cameraInputRef.current?.click();
+          return;
+      }
+
+      try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+              video: { facingMode: { ideal: 'environment' } },
+              audio: false
+          });
+          cameraStreamRef.current = stream;
+          setIsCameraOpen(true);
+
+          // The video element is mounted after the state update.
+          requestAnimationFrame(() => {
+              if (videoRef.current) {
+                  videoRef.current.srcObject = stream;
+                  void videoRef.current.play();
+              }
+          });
+      } catch (error) {
+          console.error('Unable to open camera:', error);
+          showAlert(
+              'Camera unavailable',
+              'សូមអនុញ្ញាតឱ្យប្រើកាមេរ៉ា ហើយព្យាយាមម្តងទៀត។ (Please allow camera access and try again.)',
+              'warning'
+          );
+      }
+  };
+
+  const capturePhoto = () => {
+      const video = videoRef.current;
+      if (!video || !video.videoWidth || !video.videoHeight) return;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const context = canvas.getContext('2d');
+      if (!context) return;
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+          if (!blob) return;
+          const file = new File([blob], `receipt-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          closeCamera();
+          void scanReceiptFile(file);
+      }, 'image/jpeg', 0.92);
+  };
+
+  const scanReceiptFile = async (file: File) => {
       setIsScanning(true);
       const data = await parseReceipt(file, categories);
       setIsScanning(false);
@@ -198,7 +292,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
           if (data.date) setDate(data.date);
           if (data.description) setDescription(data.description);
           if (data.categoryId) setCategoryId(data.categoryId);
-          
           if (data.items && data.items.length > 0) {
               setItems(data.items);
               setShowItemForm(true);
@@ -206,15 +299,76 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
       } else {
           showAlert("Scan Error", "មិនអាចអានវិក្កយបត្របានទេ។ សូមព្យាយាមម្តងទៀត ឬបញ្ចូលដោយដៃ។ (Could not read receipt)", "error");
       }
-      
-      // Reset input
-      if (cameraInputRef.current) cameraInputRef.current.value = '';
-      if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
 
   // Filter categories for easy selection (group by Income/Expense)
   const incomeCats = categories.filter(c => !c.chomnay);
   const expenseCats = categories.filter(c => c.chomnay);
+
+  // Build unique description suggestions for the datalist.
+  // Scoped to the currently selected category (which itself is Income or Expense),
+  // and grouped so each distinct description appears only once (e.g. "ញុំកាហ្វេ").
+  const descriptionSuggestions = useMemo(() => {
+    const selectedCat = categories.find(c => c._id === categoryId);
+    const seen = new Set<string>();
+    const sameCategory: { text: string; categoryName?: string; exact: boolean }[] = [];
+    const sameType: { text: string; categoryName?: string; exact: boolean }[] = [];
+
+    for (const t of transactions) {
+      const desc = (t.description || '').trim();
+      if (!desc) continue;
+
+      const tCat = categories.find(c => c._id === t.categoryId);
+      const matchesCategory = t.categoryId === categoryId;
+      // Same Income/Expense type (chomnay = expense). Included so the list still
+      // helps before the user narrows to an exact category.
+      const matchesType = selectedCat && tCat ? !!tCat.chomnay === !!selectedCat.chomnay : true;
+      if (!matchesCategory && !matchesType) continue;
+
+      const key = desc.toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      // Group so each distinct description appears only once (e.g. "ញុំកាហ្វេ"),
+      // with exact-category matches listed first.
+      const entry = { text: desc, categoryName: tCat?.name, exact: matchesCategory };
+      (matchesCategory ? sameCategory : sameType).push(entry);
+    }
+
+    return [...sameCategory, ...sameType];
+  }, [transactions, categories, categoryId]);
+
+  // Suggestions filtered by what the user has typed so far
+  const filteredDescSuggestions = useMemo(() => {
+    const q = description.trim().toLowerCase();
+    if (!q) return descriptionSuggestions.slice(0, 8);
+    return descriptionSuggestions
+      .filter(s => s.text.toLowerCase().includes(q) && s.text.toLowerCase() !== q)
+      .slice(0, 8);
+  }, [description, descriptionSuggestions]);
+
+  const chooseSuggestion = (text: string) => {
+    setDescription(text);
+    setShowDescList(false);
+    setDescHighlight(-1);
+    void handleDescriptionBlur(text);
+  };
+
+  const handleDescKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDescList || filteredDescSuggestions.length === 0) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setDescHighlight(h => (h + 1) % filteredDescSuggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setDescHighlight(h => (h - 1 + filteredDescSuggestions.length) % filteredDescSuggestions.length);
+    } else if (e.key === 'Enter' && descHighlight >= 0) {
+      e.preventDefault();
+      chooseSuggestion(filteredDescSuggestions[descHighlight].text);
+    } else if (e.key === 'Escape') {
+      setShowDescList(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-20 md:mb-6">
@@ -243,7 +397,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
             
             <button 
                 type="button"
-                onClick={() => cameraInputRef.current?.click()}
+                onClick={openCamera}
                 disabled={isScanning}
                 className="flex items-center gap-2 bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-lg text-sm font-bold hover:bg-indigo-100 transition-colors"
                 title="Use Camera"
@@ -263,6 +417,38 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
             </button>
         </div>
       </div>
+
+      {isCameraOpen && (
+          <div className="fixed inset-0 z-[100] bg-black flex flex-col" role="dialog" aria-modal="true" aria-label="Capture receipt">
+              <div className="relative flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+                  <video
+                      ref={videoRef}
+                      autoPlay
+                      playsInline
+                      muted
+                      className="h-full w-full object-contain"
+                  />
+                  <button
+                      type="button"
+                      onClick={closeCamera}
+                      className="absolute top-4 right-4 rounded-full bg-black/60 p-3 text-white"
+                      aria-label="Close camera"
+                  >
+                      <X size={24} />
+                  </button>
+              </div>
+              <div className="flex shrink-0 items-center justify-center bg-black px-6 py-6 safe-area-inset-bottom">
+                  <button
+                      type="button"
+                      onClick={capturePhoto}
+                      className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-white/25"
+                      aria-label="Take photo"
+                  >
+                      <span className="h-16 w-16 rounded-full bg-white" />
+                  </button>
+              </div>
+          </div>
+      )}
 
       {isScanning && (
           <div className="mb-6 bg-indigo-50 border border-indigo-100 p-4 rounded-xl flex items-center justify-center gap-3 animate-pulse">
@@ -316,18 +502,65 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ categories, familyMem
             {/* Description */}
             <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">បរិយាយ (Description)</label>
-            <div className="relative">
+            <div className="relative" ref={descBoxRef}>
                 <input
                 type="text"
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                onBlur={handleDescriptionBlur}
-                className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                onChange={(e) => { setDescription(e.target.value); setShowDescList(true); setDescHighlight(-1); }}
+                onFocus={() => setShowDescList(true)}
+                onBlur={() => handleDescriptionBlur()}
+                onKeyDown={handleDescKeyDown}
+                autoComplete="off"
+                role="combobox"
+                aria-expanded={showDescList}
+                aria-controls="description-suggestions"
+                className="w-full p-3 pr-10 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
                 placeholder="Ex: ញាំបាយព្រឹក"
                 />
-                {isSuggesting && (
-                    <div className="absolute right-3 top-3 text-indigo-500 animate-pulse">
+                {isSuggesting ? (
+                    <div className="absolute right-3 top-3.5 text-indigo-500 animate-pulse">
                         <Sparkles size={16} />
+                    </div>
+                ) : (
+                    <Search className="absolute right-3 top-3.5 text-gray-400 pointer-events-none" size={16} />
+                )}
+
+                {/* Modern autocomplete dropdown */}
+                {showDescList && filteredDescSuggestions.length > 0 && (
+                    <div
+                        id="description-suggestions"
+                        role="listbox"
+                        className="absolute z-30 left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl shadow-gray-200/70 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150"
+                    >
+                        <div className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400 bg-gray-50/80 border-b border-gray-100">
+                            ការណែនាំ (Suggestions)
+                        </div>
+                        <ul className="max-h-60 overflow-y-auto py-1">
+                            {filteredDescSuggestions.map((s, i) => (
+                                <li key={s.text}>
+                                    <button
+                                        type="button"
+                                        role="option"
+                                        aria-selected={descHighlight === i}
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={() => chooseSuggestion(s.text)}
+                                        onMouseEnter={() => setDescHighlight(i)}
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${descHighlight === i ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}
+                                    >
+                                        <span className={`flex items-center justify-center h-8 w-8 rounded-lg shrink-0 ${s.exact ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400'}`}>
+                                            <History size={15} />
+                                        </span>
+                                        <span className="flex-1 min-w-0">
+                                            <span className="block truncate text-sm font-medium text-gray-800">{s.text}</span>
+                                            {s.categoryName && (
+                                                <span className="block truncate text-xs text-gray-400">{s.categoryName}</span>
+                                            )}
+                                        </span>
+                                        {descHighlight === i && <Check size={16} className="text-indigo-500 shrink-0" />}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 )}
             </div>

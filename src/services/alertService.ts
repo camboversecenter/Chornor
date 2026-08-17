@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import Swal from 'sweetalert2';
 
 export const showAlert = (title: string, text?: string, icon: 'success' | 'error' | 'warning' | 'info' = 'info') => {

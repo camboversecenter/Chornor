@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/webauthn-prf.ts
 //
 // WebAuthn must run on the document thread (workers have no navigator.credentials),

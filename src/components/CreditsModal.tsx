@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React from 'react';
 import { X, Code2, Database, Brain, Wallet, Palette, Layout, Globe, Cpu } from 'lucide-react';
 

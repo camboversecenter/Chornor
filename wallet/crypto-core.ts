@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/crypto-core.ts
 //
 // Environment-agnostic crypto used INSIDE the signer worker. Uses only the
@@ -28,7 +30,7 @@ import {
   mnemonicToSeedSync,
   validateMnemonic,
 } from '@scure/bip39';
-import { wordlist } from '@scure/bip39/wordlists/english.js';
+import { wordlist } from '@scure/bip39/wordlists/english';
 import { Envelope, Argon2Params, EthSignature, WalletSecretKind } from './messages';
 
 const AES = 'AES-GCM';
@@ -273,10 +275,11 @@ export function signDigest(priv: Uint8Array, digest: Uint8Array): EthSignature {
   const recovered = secp256k1.sign(digest, priv, {
     format: 'recovered',
     prehash: false,
-  }); // 65 bytes: [recovery, r(32), s(32)]
-  const recovery = recovered[0];
-  const r = recovered.slice(1, 33);
-  const s = recovered.slice(33, 65);
+  });
+  const compact = recovered.toCompactRawBytes();
+  const recovery = recovered.recovery;
+  const r = compact.slice(0, 32);
+  const s = compact.slice(32, 64);
   const v = recovery + 27;
   return {
     signatureHex: '0x' + hex(r) + hex(s) + v.toString(16).padStart(2, '0'),

@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useMemo } from 'react';
 import { CryptoAsset, Currency } from '../types';
 import { CURRENCY_USD, CURRENCY_KHR, EXCHANGE_RATE } from '../constants';

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/signer.worker.ts
 //
 // Isolated signer. The secret (mnemonic OR raw private key) and the active

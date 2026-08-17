@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import { Category, CryptoAsset, CryptoTransaction, Transaction, Family, Lending, Saving, CommunityPost, PostType, ReactionType } from '../types';
 
 export const INITIAL_CATEGORIES: Category[] = [

@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { CommunityPost, PostType, ReactionType } from '../types';
 import * as storage from '../services/storageService';

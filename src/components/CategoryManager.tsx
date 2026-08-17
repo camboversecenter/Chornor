@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState } from 'react';
 import { Category } from '../types';
 import { Plus, Trash2, Tag, AlertCircle } from 'lucide-react';

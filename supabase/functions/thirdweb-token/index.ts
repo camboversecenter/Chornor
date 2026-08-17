@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { SignJWT, importPKCS8 } from "https://esm.sh/jose@4.15.5";
@@ -9,12 +10,29 @@ declare const Deno: {
   };
 };
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+// Restrict CORS to the official app origin (plus localhost for dev). This
+// function is called from the browser with a Supabase session, so we do not
+// want arbitrary origins invoking it.
+const ALLOWED_ORIGINS = new Set([
+  'https://chornors.camboverse.world',
+  'http://localhost:3000',
+  'http://localhost:5173',
+]);
+
+function buildCors(origin: string | null) {
+  const allowOrigin = origin && ALLOWED_ORIGINS.has(origin)
+    ? origin
+    : 'https://chornors.camboverse.world';
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Vary': 'Origin',
+  };
+}
 
 serve(async (req) => {
+  const corsHeaders = buildCors(req.headers.get('origin'));
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
   }
@@ -46,12 +64,29 @@ serve(async (req) => {
     // ------------------------------------------------------------------
     const userEmail = user.email?.toLowerCase() || '';
     
-    // Check wallet_whitelist table
-    const { data: whitelistData, error: whitelistError } = await supabaseClient
+    // Use the service-role client only after authenticating the caller above.
+    // wallet_whitelist is an admin-owned table and is commonly protected by
+    // RLS, so querying it with the user's client can make valid rows invisible.
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    if (!serviceRoleKey) {
+      throw new Error('Server Config Error: Missing SUPABASE_SERVICE_ROLE_KEY');
+    }
+    const adminClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      serviceRoleKey,
+      { auth: { persistSession: false } }
+    );
+
+    const { data: whitelistData, error: whitelistError } = await adminClient
       .from('wallet_whitelist')
       .select('email')
-      .eq('email', userEmail)
-      .single();
+      .ilike('email', userEmail)
+      .maybeSingle();
+
+    if (whitelistError) {
+      console.error('Whitelist lookup failed:', whitelistError.message);
+      throw new Error(`Whitelist lookup failed: ${whitelistError.message}`);
+    }
 
     // If no record found, deny access
     if (!whitelistData) {

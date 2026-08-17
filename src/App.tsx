@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect, useRef } from 'react';
 import { TabView, Category, Transaction, Family, Currency, AppNotification, UserProfile, TransactionRequest } from './types';
 import * as storage from './services/storageService';
@@ -13,6 +14,7 @@ import FamilyManager from './components/FamilyManager';
 import TransactionForm from './components/TransactionForm';
 import LendingManager from './components/LendingManager';
 import SavingManager from './components/SavingManager';
+import BudgetManager from './components/BudgetManager';
 import CryptoManager from './components/CryptoManager';
 import CommunityHub from './components/CommunityHub';
 import LoginScreen from './components/LoginScreen';
@@ -20,14 +22,19 @@ import HowToGuide from './components/HowToGuide';
 import CommunityLicense from './components/CommunityLicense';
 import AdminDashboard from './components/AdminDashboard';
 import CreditsModal from './components/CreditsModal';
-import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users } from 'lucide-react';
+import LandingPage from './components/LandingPage';
+import AboutPage from './components/AboutPage';
+import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users, Sun, Moon, PieChart } from 'lucide-react';
 import { CURRENCY_KHR, CURRENCY_USD } from './constants';
+import ThemeToggle from './components/ThemeToggle';
+import { useTheme } from './theme';
 
 const ROUTES: Record<TabView, string> = {
   [TabView.DASHBOARD]: '/',
   [TabView.TRANSACTIONS]: '/transactions',
   [TabView.ADD]: '/transactions/new',
   [TabView.CATEGORIES]: '/settings',
+  [TabView.BUDGET]: '/budgets',
   [TabView.LENDING]: '/lending',
   [TabView.SAVING]: '/savings',
   [TabView.CRYPTO]: '/crypto',
@@ -43,6 +50,9 @@ const getTabFromPath = (path: string): TabView => {
 
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [showLogin, setShowLogin] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(false);
   const activeUserIdRef = useRef<string | null>(null);
@@ -238,6 +248,7 @@ const App: React.FC = () => {
       setShowNotifications(false);
       if (n.type === 'LENDING') navigateTo(TabView.LENDING);
       if (n.type === 'SAVING') navigateTo(TabView.SAVING);
+      if (n.type === 'BUDGET') navigateTo(TabView.BUDGET);
       if (n.type === 'TRANSACTION') navigateTo(TabView.TRANSACTIONS);
       if (n.type === 'EXTERNAL_REQUEST' && n.data) {
           setPendingRequests(n.data);
@@ -307,9 +318,10 @@ const App: React.FC = () => {
       case TabView.ADD:
         return (
           <div className="max-w-2xl mx-auto">
-             <TransactionForm 
+             <TransactionForm
                 categories={categories}
                 familyMembers={familyMembers}
+                transactions={transactions}
                 defaultCurrency={preferredCurrency}
                 initialData={editingTransaction}
                 onSave={handleSaveTransaction} 
@@ -317,6 +329,8 @@ const App: React.FC = () => {
              />
           </div>
         );
+      case TabView.BUDGET:
+        return <BudgetManager categories={categories} transactions={transactions} preferredCurrency={preferredCurrency} />;
       case TabView.LENDING:
         return <LendingManager familyMembers={familyMembers} preferredCurrency={preferredCurrency} />;
       case TabView.SAVING:
@@ -380,6 +394,26 @@ const App: React.FC = () => {
                                      >
                                          <span className="font-bold">{CURRENCY_USD} USD</span>
                                          {preferredCurrency === 'USD' && <CheckCircle2 size={20} />}
+                                     </button>
+                                 </div>
+                             </div>
+
+                             <div className="mb-6">
+                                 <p className="text-sm font-medium text-gray-700 mb-2">រូបរាង (Appearance)</p>
+                                 <div className="flex gap-3">
+                                     <button
+                                        onClick={() => setTheme('light')}
+                                        className={`flex-1 p-3 rounded-xl border flex items-center justify-center gap-2 ${theme === 'light' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}
+                                     >
+                                         <Sun size={18} />
+                                         <span className="font-bold">ភ្លឺ (Light)</span>
+                                     </button>
+                                     <button
+                                        onClick={() => setTheme('dark')}
+                                        className={`flex-1 p-3 rounded-xl border flex items-center justify-center gap-2 ${theme === 'dark' ? 'border-indigo-500 bg-indigo-50 text-indigo-700' : 'border-gray-200 text-gray-600'}`}
+                                     >
+                                         <Moon size={18} />
+                                         <span className="font-bold">ងងឹត (Dark)</span>
                                      </button>
                                  </div>
                              </div>
@@ -490,13 +524,29 @@ const App: React.FC = () => {
   }
 
   if (!currentUser) {
+      if (showLogin) {
+          return (
+            <>
+                <LoginScreen onLogin={handleLogin} />
+                <div className="fixed bottom-2 w-full text-center text-xs text-white/50 font-mono z-50 pointer-events-none">
+                    Ver. 0.02 (Beta)
+                </div>
+            </>
+          );
+      }
+      if (showAbout) {
+          return (
+            <AboutPage
+                onBack={() => setShowAbout(false)}
+                onGetStarted={() => { setShowAbout(false); setShowLogin(true); }}
+            />
+          );
+      }
       return (
-        <>
-            <LoginScreen onLogin={handleLogin} />
-            <div className="fixed bottom-2 w-full text-center text-xs text-white/50 font-mono z-50 pointer-events-none">
-                Ver. 0.02 (Beta)
-            </div>
-        </>
+        <LandingPage
+            onGetStarted={() => setShowLogin(true)}
+            onAbout={() => { setShowAbout(true); window.scrollTo(0, 0); }}
+        />
       );
   }
 
@@ -529,6 +579,7 @@ const App: React.FC = () => {
               
               <div className="my-4 border-t border-gray-100"></div>
               
+              <NavItem tab={TabView.BUDGET} icon={PieChart} label="ថវិកា (Budgets)" />
               <NavItem tab={TabView.LENDING} icon={Coins} label="កម្ចី (Lending)" />
               <NavItem tab={TabView.SAVING} icon={PiggyBank} label="ការសន្សំ (Saving)" />
               <NavItem tab={TabView.CRYPTO} icon={Bitcoin} label="គ្រីបតូ (Crypto)" />
@@ -582,6 +633,7 @@ const App: React.FC = () => {
                    {activeTab === TabView.DASHBOARD && 'Dashboard Overview'}
                    {activeTab === TabView.TRANSACTIONS && 'Transaction History'}
                    {activeTab === TabView.ADD && 'New Transaction'}
+                   {activeTab === TabView.BUDGET && 'Budgets'}
                    {activeTab === TabView.LENDING && 'Lending Management'}
                    {activeTab === TabView.SAVING && 'Savings Goals'}
                    {activeTab === TabView.CRYPTO && 'Crypto Portfolio'}
@@ -612,9 +664,19 @@ const App: React.FC = () => {
                     <BookOpen size={20} />
                 </button>
 
+                {/* Budgets (Mobile Only - Desktop in Sidebar) */}
+                <div className="md:hidden">
+                    <button
+                        onClick={() => navigateTo(TabView.BUDGET)}
+                        className={`relative p-2 rounded-full hover:bg-gray-100 transition-colors ${activeTab === TabView.BUDGET ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}
+                    >
+                        <PieChart size={24} />
+                    </button>
+                </div>
+
                 {/* Community (Mobile Only - Desktop in Sidebar) */}
                 <div className="md:hidden">
-                    <button 
+                    <button
                         onClick={() => navigateTo(TabView.COMMUNITY)}
                         className={`relative p-2 rounded-full hover:bg-gray-100 transition-colors ${activeTab === TabView.COMMUNITY ? 'text-indigo-600 bg-indigo-50' : 'text-gray-500'}`}
                     >
@@ -622,8 +684,11 @@ const App: React.FC = () => {
                     </button>
                 </div>
 
+                {/* Theme Toggle */}
+                <ThemeToggle className="p-2 rounded-full bg-white shadow-sm border border-gray-100 text-gray-600 hover:bg-gray-100" size={20} />
+
                 {/* Notification Bell */}
-                <button 
+                <button
                     onClick={() => setShowNotifications(true)}
                     className="relative p-2 rounded-full hover:bg-gray-100 transition-colors bg-white shadow-sm border border-gray-100"
                 >
@@ -694,8 +759,9 @@ const App: React.FC = () => {
                                       <div className="flex justify-between items-start mb-1">
                                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                               n.type === 'EXTERNAL_REQUEST' ? 'bg-indigo-100 text-indigo-700' :
-                                              n.type === 'LENDING' ? 'bg-blue-100 text-blue-700' : 
-                                              n.type === 'SAVING' ? 'bg-green-100 text-green-700' : 
+                                              n.type === 'LENDING' ? 'bg-blue-100 text-blue-700' :
+                                              n.type === 'SAVING' ? 'bg-green-100 text-green-700' :
+                                              n.type === 'BUDGET' ? 'bg-purple-100 text-purple-700' :
                                               'bg-orange-100 text-orange-700'}`}>
                                               {n.type}
                                           </span>

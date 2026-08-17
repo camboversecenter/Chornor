@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/messages.ts
 //
 // Wire protocol between the main thread (WalletSignerClient) and the isolated

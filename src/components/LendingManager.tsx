@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect } from 'react';
 import { Lending, LendingTransaction, Family, Currency } from '../types';
 import { CURRENCY_USD, CURRENCY_KHR, EXCHANGE_RATE } from '../constants';

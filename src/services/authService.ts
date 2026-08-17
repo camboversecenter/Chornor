@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import { UserProfile } from "../types";
 import { supabase } from "./supabaseClient";
 

@@ -23,6 +23,6 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["src", "server.ts", "vite.config.ts"],
+  "include": ["src", "wallet", "server.ts", "vite.config.ts"],
   "exclude": ["node_modules", "dist", "src/doc", "supabase"]
 }

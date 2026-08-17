@@ -1,4 +1,5 @@
-
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import React, { useState, useEffect, useRef } from 'react';
 import { CryptoAsset, CryptoTransaction, Currency, UserProfile } from '../types';
 import * as storage from '../services/storageService';
@@ -83,7 +84,7 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activationError, setActivationError] = useState<string | null>(null);
   const [isActivating, setIsActivating] = useState(false);
-  
+
   // Wallet Asset Management
   const [walletTokens, setWalletTokens] = useState<WalletToken[]>([]);
   const [walletPrices, setWalletPrices] = useState<Record<string, number>>({});
@@ -339,7 +340,13 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
       
       setIsActivating(true);
       setActivationError(null);
-      
+
+      if (!currentUser) {
+          if (!silentMode) setActivationError("Wallet activation requires a signed-in Google account.");
+          setIsActivating(false);
+          return;
+      }
+
       const { data } = await supabase.auth.getSession();
       const accessToken = data.session?.access_token;
 
@@ -358,7 +365,16 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
 
           if (funcError) {
               console.error("Token Exchange Error:", funcError);
-              const msg = typeof funcError === 'string' ? funcError : (funcError.message || JSON.stringify(funcError));
+              let msg = typeof funcError === 'string' ? funcError : (funcError.message || JSON.stringify(funcError));
+              const response = (funcError as any)?.context;
+              if (response && typeof response.json === 'function') {
+                  try {
+                      const body = await response.json();
+                      msg = body?.error || body?.message || msg;
+                  } catch {
+                      // Keep the SDK error message if the response is not JSON.
+                  }
+              }
               if (msg.includes("Access Denied") || msg.includes("whitelisted")) {
                   setActivationError("ACCESS_DENIED"); 
               } else {
@@ -729,7 +745,7 @@ const CryptoManager: React.FC<CryptoManagerProps> = ({ preferredCurrency = 'KHR'
                             បង្កើតកាបូបឌីជីថល (Web3 Wallet) សម្រាប់គណនីរបស់អ្នក។
                             <br/><span className="text-xs text-orange-500">តម្រូវឱ្យមានការអនុញ្ញាតពី Admin (Whitelist Required)</span>
                         </p>
-                        
+
                         {activationError === "ACCESS_DENIED" ? (
                             <div className="bg-red-50 p-4 rounded-xl border border-red-100 mb-6 text-left animate-in slide-in-from-top-2">
                                 <div className="flex items-center gap-2 mb-2 text-red-700 font-bold">

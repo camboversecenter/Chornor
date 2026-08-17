@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 export type Currency = 'KHR' | 'USD';
 
 export enum TabView {
@@ -5,6 +7,7 @@ export enum TabView {
   TRANSACTIONS = 'TRANSACTIONS',
   ADD = 'ADD',
   CATEGORIES = 'CATEGORIES',
+  BUDGET = 'BUDGET',
   LENDING = 'LENDING',
   SAVING = 'SAVING',
   CRYPTO = 'CRYPTO',
@@ -81,6 +84,18 @@ export interface LendingTransaction {
   paidAt?: string;
 }
 
+// A monthly spending limit for one expense category. Spend is computed from the
+// transactions in that category for the current calendar month, converted to the
+// budget's currency. Budgets recur every month (they are not tied to one month).
+export interface Budget {
+  _id: string;
+  categoryId: string;
+  amount: number;
+  currency: Currency;
+  createdAt: string;
+  user_id?: string;
+}
+
 export interface Saving {
   _id: string;
   title: string;
@@ -151,7 +166,7 @@ export interface TransactionRequest {
 
 export interface AppNotification {
   id: string;
-  type: 'LENDING' | 'SAVING' | 'TRANSACTION' | 'EXTERNAL_REQUEST';
+  type: 'LENDING' | 'SAVING' | 'TRANSACTION' | 'EXTERNAL_REQUEST' | 'BUDGET';
   title: string;
   message: string;
   date: string;

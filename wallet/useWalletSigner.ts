@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 // src/wallet/useWalletSigner.ts
 //
 // React hook that owns a single signer-worker instance, ties it to your storage

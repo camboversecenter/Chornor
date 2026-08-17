@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2026 Tomorrow Rich Together
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -11,6 +13,23 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-api-key',
 };
+
+// auth.admin.listUsers has no email filter and defaults to 50 users per page,
+// so we page through until we find the user (or run out). Without this, any user
+// beyond the first page could never receive an external transaction.
+async function findUserByEmail(admin: any, email: string) {
+  const target = email.trim().toLowerCase();
+  const perPage = 1000;
+  for (let page = 1; page <= 50; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
+    if (error) throw error;
+    const users = data?.users ?? [];
+    const found = users.find((u: any) => (u.email ?? '').toLowerCase() === target);
+    if (found) return found;
+    if (users.length < perPage) break; // last page reached
+  }
+  return null;
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -46,18 +65,16 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: 'Missing required fields: user_email, amount, currency' }), { status: 400, headers: corsHeaders });
     }
 
-    // 3. Find User ID from Email
-    // Note: In production, you might map this via a separate "Link Account" flow to expose a user_id safely.
-    // Here we assume email lookup for simplicity.
-    
-    // We can't query auth.users directly easily via client SDK unless we use admin API, 
-    // but easier to query a public profile table if one exists.
-    // Assuming we don't expose emails publicly, this step implies the 3rd party KNOWS the email.
-    
-    // Let's assume we store user emails in a 'user_profiles' table or similar, 
-    // OR we use the admin auth api.
-    const { data: { users }, error: userError } = await supabaseClient.auth.admin.listUsers();
-    const targetUser = users.find((u: any) => u.email === user_email);
+    // 3. Validate amount/currency, then find the target user by email.
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+        return new Response(JSON.stringify({ error: 'Invalid amount' }), { status: 400, headers: corsHeaders });
+    }
+    if (currency !== 'KHR' && currency !== 'USD') {
+        return new Response(JSON.stringify({ error: 'Invalid currency (must be KHR or USD)' }), { status: 400, headers: corsHeaders });
+    }
+
+    const targetUser = await findUserByEmail(supabaseClient, user_email);
 
     if (!targetUser) {
         return new Response(JSON.stringify({ error: 'User not found' }), { status: 404, headers: corsHeaders });
@@ -81,7 +98,7 @@ serve(async (req) => {
             source_app_id: clientData.id,
             source_app_name: clientData.name,
             user_id: targetUser.id,
-            amount: amount,
+            amount: numericAmount,
             currency: currency,
             description: description || `Transaction from ${clientData.name}`,
             date: date || new Date().toISOString(),
