@@ -19,12 +19,10 @@ import CryptoManager from './components/CryptoManager';
 import CommunityHub from './components/CommunityHub';
 import LoginScreen from './components/LoginScreen';
 import HowToGuide from './components/HowToGuide';
-import CommunityLicense from './components/CommunityLicense';
 import AdminDashboard from './components/AdminDashboard';
-import CreditsModal from './components/CreditsModal';
 import LandingPage from './components/LandingPage';
 import AboutPage from './components/AboutPage';
-import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, FileText, Menu, LogOut, Code2, DownloadCloud, Check, XCircle, Play, Tag, Users, Sun, Moon, PieChart } from 'lucide-react';
+import { LayoutDashboard, List, PlusCircle, Settings, Coins, PiggyBank, Bitcoin, CheckCircle2, Bell, X, Calendar, AlertTriangle, Globe, Loader2, BookOpen, ShieldCheck, WifiOff, Menu, LogOut, DownloadCloud, Check, XCircle, Play, Tag, Users, Sun, Moon, PieChart } from 'lucide-react';
 import { CURRENCY_KHR, CURRENCY_USD } from './constants';
 import ThemeToggle from './components/ThemeToggle';
 import { useTheme } from './theme';
@@ -76,8 +74,6 @@ const App: React.FC = () => {
   
   // Modals
   const [showHowTo, setShowHowTo] = useState(false);
-  const [showLicense, setShowLicense] = useState(false);
-  const [showCredits, setShowCredits] = useState(false);
   const [pendingRequests, setPendingRequests] = useState<TransactionRequest[]>([]);
   const [showRequestModal, setShowRequestModal] = useState(false);
   
@@ -472,22 +468,6 @@ const App: React.FC = () => {
                          {/* Version Footer */}
                          <div className="flex flex-col items-center justify-center gap-2 text-xs text-gray-300 py-4 font-mono">
                              <span>Ver. 0.02 (Beta)</span>
-                             <div className="flex gap-3">
-                                <button 
-                                    onClick={() => setShowLicense(true)}
-                                    className="flex items-center gap-1 hover:text-indigo-400 transition-colors"
-                                >
-                                    <FileText size={10} />
-                                    Community License
-                                </button>
-                                <button 
-                                    onClick={() => setShowCredits(true)}
-                                    className="flex items-center gap-1 hover:text-indigo-400 transition-colors"
-                                >
-                                    <Code2 size={10} />
-                                    Credits
-                                </button>
-                             </div>
                          </div>
                      </div>
                 )}
@@ -874,12 +854,6 @@ const App: React.FC = () => {
 
       {/* How To Modal */}
       {showHowTo && <HowToGuide onClose={() => setShowHowTo(false)} />}
-      
-      {/* Community License Modal */}
-      {showLicense && <CommunityLicense onClose={() => setShowLicense(false)} />}
-
-      {/* Credits Modal */}
-      {showCredits && <CreditsModal onClose={() => setShowCredits(false)} />}
 
       {/* MOBILE BOTTOM NAVIGATION */}
       <nav className="md:hidden bg-white border-t border-gray-200 p-2 fixed bottom-0 w-full z-20 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">

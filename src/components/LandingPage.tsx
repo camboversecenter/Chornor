@@ -4,10 +4,8 @@ import React, { useState } from 'react';
 import {
   Wallet, LayoutDashboard, ScanLine, Coins, PiggyBank, Bitcoin, Globe,
   Sparkles, ShieldCheck, Bell, ArrowRight, Check, WifiOff, Languages,
-  HeartHandshake, FileText, Code2, Menu, Send, Github
+  HeartHandshake, Code2, Menu, Send, Github
 } from 'lucide-react';
-import CommunityLicense from './CommunityLicense';
-import CreditsModal from './CreditsModal';
 import HowToGuide from './HowToGuide';
 import ThemeToggle from './ThemeToggle';
 
@@ -33,8 +31,6 @@ const WHY = [
 ];
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
-  const [showLicense, setShowLicense] = useState(false);
-  const [showCredits, setShowCredits] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -232,9 +228,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
                 <button onClick={onGetStarted} className="inline-flex items-center gap-2 bg-white text-indigo-700 font-bold px-5 py-2.5 rounded-xl hover:bg-indigo-50 transition-colors">
                   Get Started <ArrowRight size={16} />
                 </button>
-                <button onClick={() => setShowLicense(true)} className="inline-flex items-center gap-2 bg-white/10 border border-white/25 font-semibold px-5 py-2.5 rounded-xl hover:bg-white/20 transition-colors">
-                  <FileText size={16} /> Read the license
-                </button>
               </div>
             </div>
             <div className="space-y-3">
@@ -295,7 +288,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
                 <button onClick={onAbout} className="text-left hover:text-white transition-colors">About Us</button>
                 <a href="https://t.me/+VnJNjvNbXpQ3MWM1" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Send size={13} /> Telegram</a>
                 <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Github size={13} /> GitHub</a>
-                <button onClick={() => setShowCredits(true)} className="text-left hover:text-white transition-colors">Credits</button>
               </div>
             </div>
           </div>
@@ -306,8 +298,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
         </div>
       </footer>
 
-      {showLicense && <CommunityLicense onClose={() => setShowLicense(false)} />}
-      {showCredits && <CreditsModal onClose={() => setShowCredits(false)} />}
       {showHowTo && <HowToGuide onClose={() => setShowHowTo(false)} />}
     </div>
   );
