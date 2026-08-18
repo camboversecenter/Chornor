@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import {
   Wallet, LayoutDashboard, ScanLine, Coins, PiggyBank, Bitcoin, Globe,
   Sparkles, ShieldCheck, Bell, ArrowRight, Check, WifiOff, Languages,
-  HeartHandshake, FileText, Code2, Menu, Send
+  HeartHandshake, FileText, Code2, Menu, Send, Github
 } from 'lucide-react';
 import CommunityLicense from './CommunityLicense';
 import CreditsModal from './CreditsModal';
@@ -294,7 +294,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
                 <span className="text-white font-semibold mb-1">Project</span>
                 <button onClick={onAbout} className="text-left hover:text-white transition-colors">About Us</button>
                 <a href="https://t.me/+VnJNjvNbXpQ3MWM1" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Send size={13} /> Telegram</a>
-                <button onClick={() => setShowLicense(true)} className="text-left hover:text-white transition-colors">License (Apache-2.0)</button>
+                <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Github size={13} /> GitHub</a>
                 <button onClick={() => setShowCredits(true)} className="text-left hover:text-white transition-colors">Credits</button>
               </div>
             </div>
