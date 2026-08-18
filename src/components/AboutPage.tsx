@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Tomorrow Rich Together
 import React from 'react';
 import {
-  ArrowLeft, ArrowRight, Send, ExternalLink, Users, HeartHandshake,
+  ArrowLeft, ArrowRight, Send, ExternalLink, Github, Users, HeartHandshake,
 } from 'lucide-react';
 import ThemeToggle from './ThemeToggle';
 
@@ -191,7 +191,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack, onGetStarted }) => {
             <p className="mt-6 text-sm text-indigo-100/90">
               The full source code lives on{' '}
               <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 font-semibold text-white underline underline-offset-4 hover:text-indigo-100 transition-colors">
-                GitHub <ExternalLink size={14} />
+                GitHub <Github size={14} />
               </a>
             </p>
           </div>
@@ -211,7 +211,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack, onGetStarted }) => {
               <Send size={14} /> Telegram
             </a>
             <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
-              <ExternalLink size={14} /> GitHub
+              <Github size={14} /> GitHub
             </a>
           </div>
           <span className="text-xs">© {new Date().getFullYear()} Tomorrow Rich Together</span>

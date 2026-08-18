@@ -229,7 +229,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
                   Get Started <ArrowRight size={16} />
                 </button>
                 <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 border border-white/25 font-semibold px-5 py-2.5 rounded-xl hover:bg-white/20 transition-colors">
-                  <Code2 size={16} /> View on GitHub
+                  <Github size={16} /> View on GitHub
                 </a>
               </div>
             </div>
@@ -296,7 +296,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
           </div>
           <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <span>© {new Date().getFullYear()} Tomorrow Rich Together · Ver. 0.02 (Beta)</span>
-            <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Code2 size={13} /> Source code on GitHub</a>
+            <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Github size={13} /> Source code on GitHub</a>
           </div>
         </div>
       </footer>
