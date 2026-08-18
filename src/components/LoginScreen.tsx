@@ -4,10 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { loginWithGoogle, createLocalUser } from '../services/authService';
 import { getSystemConfig } from '../services/storageService';
 import { UserProfile } from '../types';
-import { Wallet, ShieldCheck, AlertTriangle, X, FileText, WifiOff, Key, Code, Copy, Check, Terminal, Server, Shield, Code2, Gift } from 'lucide-react';
+import { Wallet, ShieldCheck, AlertTriangle, X, WifiOff, Key, Code, Copy, Check, Terminal, Server, Shield, Gift } from 'lucide-react';
 import HowToGuide from './HowToGuide';
-import CommunityLicense from './CommunityLicense';
-import CreditsModal from './CreditsModal';
 import ThemeToggle from './ThemeToggle';
 
 interface LoginScreenProps {
@@ -18,8 +16,6 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
-  const [showLicense, setShowLicense] = useState(false);
-  const [showCredits, setShowCredits] = useState(false);
   const [guestModeEnabled, setGuestModeEnabled] = useState(false);
 
   useEffect(() => {
@@ -136,29 +132,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin }) => {
                    <ShieldCheck size={12} />
                    <span>Secured by Supabase</span>
                </div>
-               
-               <div className="flex gap-4">
-                    <button 
-                            onClick={() => setShowLicense(true)}
-                            className="text-[10px] text-indigo-400 hover:text-indigo-600 flex items-center gap-1 hover:underline underline-offset-2"
-                    >
-                        <FileText size={10} />
-                        អាជ្ញាប័ណ្ណ (License)
-                    </button>
-                    <button 
-                            onClick={() => setShowCredits(true)}
-                            className="text-[10px] text-indigo-400 hover:text-indigo-600 flex items-center gap-1 hover:underline underline-offset-2"
-                    >
-                        <Code2 size={10} />
-                        Credits
-                    </button>
-               </div>
            </div>
        </div>
 
        {showHowTo && <HowToGuide onClose={() => setShowHowTo(false)} />}
-       {showLicense && <CommunityLicense onClose={() => setShowLicense(false)} />}
-       {showCredits && <CreditsModal onClose={() => setShowCredits(false)} />}
     </div>
   );
 };
