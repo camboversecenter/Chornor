@@ -4,10 +4,8 @@ import React, { useState } from 'react';
 import {
   Wallet, LayoutDashboard, ScanLine, Coins, PiggyBank, Bitcoin, Globe,
   Sparkles, ShieldCheck, Bell, ArrowRight, Check, WifiOff, Languages,
-  HeartHandshake, FileText, Code2, Menu, Send
+  HeartHandshake, Code2, Menu, Send, Github
 } from 'lucide-react';
-import CommunityLicense from './CommunityLicense';
-import CreditsModal from './CreditsModal';
 import HowToGuide from './HowToGuide';
 import ThemeToggle from './ThemeToggle';
 
@@ -33,8 +31,6 @@ const WHY = [
 ];
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
-  const [showLicense, setShowLicense] = useState(false);
-  const [showCredits, setShowCredits] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -91,7 +87,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
         <div className="relative max-w-6xl mx-auto px-5 py-16 md:py-24 grid md:grid-cols-2 gap-12 items-center">
           <div>
             <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-xs font-semibold mb-6">
-              <Sparkles size={14} className="text-amber-300" /> Free &amp; Open Source · Apache-2.0
+              <Sparkles size={14} className="text-amber-300" /> Free &amp; Open Source
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
               Your money,<br />
@@ -224,17 +220,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
               </span>
               <h2 className="text-2xl md:text-3xl font-extrabold leading-snug">A community project, free forever</h2>
               <p className="mt-4 text-indigo-100/90 leading-relaxed">
-                Chornor is owned by the student team <span className="font-semibold text-white">Tomorrow Rich Together</span> and
-                licensed under Apache-2.0. It is sustained through community support, donations,
-                grants, and training, never by selling your data or the software.
+                Chornor is owned by the student team <span className="font-semibold text-white">Tomorrow Rich Together</span>.
+                It is sustained through community support, donations, grants, and training,
+                never by selling your data or the software.
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <button onClick={onGetStarted} className="inline-flex items-center gap-2 bg-white text-indigo-700 font-bold px-5 py-2.5 rounded-xl hover:bg-indigo-50 transition-colors">
                   Get Started <ArrowRight size={16} />
                 </button>
-                <button onClick={() => setShowLicense(true)} className="inline-flex items-center gap-2 bg-white/10 border border-white/25 font-semibold px-5 py-2.5 rounded-xl hover:bg-white/20 transition-colors">
-                  <FileText size={16} /> Read the license
-                </button>
+                <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white/10 border border-white/25 font-semibold px-5 py-2.5 rounded-xl hover:bg-white/20 transition-colors">
+                  <Github size={16} /> View on GitHub
+                </a>
               </div>
             </div>
             <div className="space-y-3">
@@ -294,20 +290,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onAbout }) => {
                 <span className="text-white font-semibold mb-1">Project</span>
                 <button onClick={onAbout} className="text-left hover:text-white transition-colors">About Us</button>
                 <a href="https://t.me/+VnJNjvNbXpQ3MWM1" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Send size={13} /> Telegram</a>
-                <button onClick={() => setShowLicense(true)} className="text-left hover:text-white transition-colors">License (Apache-2.0)</button>
-                <button onClick={() => setShowCredits(true)} className="text-left hover:text-white transition-colors">Credits</button>
+                <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="text-left inline-flex items-center gap-1.5 hover:text-white transition-colors"><Github size={13} /> GitHub</a>
               </div>
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
             <span>© {new Date().getFullYear()} Tomorrow Rich Together · Ver. 0.02 (Beta)</span>
-            <span className="inline-flex items-center gap-1.5"><Code2 size={13} /> Open source under Apache-2.0</span>
+            <a href="https://github.com/camboversecenter/Chornor" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-white transition-colors"><Github size={13} /> Source code on GitHub</a>
           </div>
         </div>
       </footer>
 
-      {showLicense && <CommunityLicense onClose={() => setShowLicense(false)} />}
-      {showCredits && <CreditsModal onClose={() => setShowCredits(false)} />}
       {showHowTo && <HowToGuide onClose={() => setShowHowTo(false)} />}
     </div>
   );
